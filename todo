@@ -1,0 +1,12 @@
+1. Program musi mat na vstupe prave jeden argument - nazov suboru
+2. Treba zistit ci zadany subor existuje
+3. Textovy subor sa sklada z troch casti:
+    a) definica univerza
+       definicia sa zacina 'U', nasleduju medzerou oddelene prvky
+    
+    b) definicia mnozin a relacii - zacina sa R alebo S
+       b1) mnozina sa zacina 'S', nasleduju medzerou oddelene prvky
+    
+       b2) relacia sa zacina 'R', nasleduju medzerou oddelene dvojice prvkou v zatvorkach
+
+    c) prikazy nad mnozinami - zacina sa 'C', nasleduje operacia, ktoru spravime medzi i-tym a j-tym riadkom
