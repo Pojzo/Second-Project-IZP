@@ -2,15 +2,36 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <string.h>
 
 const unsigned int MAX_ROWS = 1000;
+const unsigned int U_MAX_ITEM_LEN = 30;
 const int MAX_ARGUMENTS = 2; // maximum number of arguments, including name of executable
+const unsigned int NUM_SET_COMMANDS = 9;
+const unsigned int NUM_RELATION_COMMANDS = 10;
 
+const char* set_commands[] = {"empty", "card", "complement", "union",
+                            "intersect", "minus", "subseteq", "subset",
+                            "equals"};
+
+const char *relation_commands[] = {"reflexive", "symmetric", "antisymmetric",
+                                   "transitive", "function", "domain", "codomain", 
+                                   "injective", "surjective", "bijective"};
 
 typedef struct Universe {
     const char **items;
-    int num_items;
+    size_t num_items;
 } universe_t;
+
+typedef struct Pair {
+    const char* first;
+    const char* second;
+} pair_t;
+
+typedef struct Relation {
+    struct Pair *pairs;
+    size_t num_items;
+} relation_t;
 
 
 // error constants
@@ -18,7 +39,7 @@ enum _errors {TOO_FEW_ARGUMENTS, TOO_MANY_ARGUMENTS};
 
 // string for errors
 const char *error_strings[] = {"Number of arguments is too small\n",
-                                   "Number of arguments is too high\n"};
+    "Number of arguments is too high\n"};
 
 void errorMessage(int error_code);
 
@@ -27,9 +48,14 @@ const char* getFilename(int argc, char** argv);
 bool fileExists(const char* filename);
 
 // universe related functions
+// helper functions
+bool isCommand(const char *word);
+bool containsEnglishLetters(const char *word);
+
 universe_t *createUniverse();
 int universeAddItem(universe_t* U, const char* item);
 void printUniverse(universe_t* U);
+bool universeValidItem(const char* item);
 
 
 int main(int argc, char **argv) {
@@ -59,7 +85,7 @@ int main(int argc, char **argv) {
     }
 
     printUniverse(U);
-    
+
     return 0;
 }
 
@@ -119,10 +145,70 @@ void printUniverse(universe_t* U) {
         fprintf(stderr, "Structure is not initialized\n");
         return;
     }
-    for (int i = 0; i < U->num_items; i++) {
+    for (size_t i = 0; i < U->num_items; i++) {
         // print the universe, if we're on last character, print end of line, else print space
         printf("%s%c\n", U->items[i], i == U->num_items - 1 ? '\n' : ' ');
     }
 }
 
+// returns true if word contains only lowercase and uppercase english characters
+bool containsEnglishLetters(const char* word) {
+    char c;
+    for (size_t i = 0; i < strlen(word); i++) {
+        c = word[i];
+        // if letter is not a letter form enligsh alphabet, return false
+        if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool isCommand(const char* word) {
+    // iterate over set commands
+    for (size_t i = 0; i < NUM_SET_COMMANDS; i++) {
+        // if word equals current command, return false
+        if (strcmp(set_commands[i], word)) {
+            return false;
+        }
+    }
+    // iterate over relation commands
+    for (size_t i = 0; i < NUM_RELATION_COMMANDS; i++) {
+        if (strcmp(relation_commands[i], word)) {
+            return false;
+        }
+    }
+    // word cant be equal to 'true'
+    if (strcmp("true", word)) {
+        return false;
+    }
+    // word cant be equal to 'false'
+    if (strcmp("false", word)) {
+        return false;
+    }
+    
+    // if word has passed all conditions, return true
+    return true;
+}
+
+// check if valid for universe
+bool universeValidItem(const char* item) {
+    // if length of item exceeds maximum allowed length, its not valid
+    if (strlen(item) > U_MAX_ITEM_LEN) {
+        fprintf(stderr, "Length of word exceeds maximum length\n");
+        return false;
+    }
+    
+    // check other conditions
+    if (!containsEnglishLetters(item)) {
+        fprintf(stderr, "Item must contains only lowercase and uppercase english characters\n");
+        return false;
+    }
+    if (isCommand(item)) {
+        fprintf(stderr, "Item cannot be command or true/false\n");
+        return false;
+    }
+
+    return true;
+}
 
