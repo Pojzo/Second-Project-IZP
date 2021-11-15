@@ -1,5 +1,5 @@
-1. Program musi mat na vstupe prave jeden argument - nazov suboru
-2. Treba zistit ci zadany subor existuje
+1. Program musi mat na vstupe prave jeden argument - nazov suboru // OK
+2. Treba zistit ci zadany subor existuje // OK
 3. Textovy subor sa sklada z troch casti:
     a) definica univerza
        definicia sa zacina 'U', nasleduju medzerou oddelene prvky
