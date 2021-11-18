@@ -33,7 +33,7 @@ bool enough_arguments (int argc);
 
 // prototypes of functions for universe
 int universe_load (universe_t *U, char *line);
-int universe_add (universe_t *U, char *word);
+int universe_add_item (universe_t *U, char *word);
 bool universe_valid_item (const char *string);
 void universe_print (universe_t *U);
 
@@ -78,8 +78,8 @@ int universe_load (universe_t *U, char *line) {
         fprintf(stderr, "[ERROR] Invalid Universum.\n"); 
         return 0;
     }
-    char current_word[UNIVERSE_MAX_CHARS];
-    // nekonecny cyklus
+    //char current_word[UNIVERSE_MAX_CHARS]; // TODO
+    // infinite cycle 
     while (true) {
         token = strtok(NULL, " ");
         // ak token nenasiel ziadny dalsi string, ukoncime cyklus
@@ -87,15 +87,16 @@ int universe_load (universe_t *U, char *line) {
             break;
         }
         // ak sa nepodarilo pridat nejaky prvok do univerza, vratime false
-        if (!universe_add(U, token)) {
+        if (!universe_add_item(U, token)) {
             return 0;
         }
     }
     return 1;
 }
 
-// ak sa nam podarilo pridat prvok, returnujeme true, ak nie, tak false
-int universe_add (universe_t *U, char *token) {
+
+// function returns true if adding element to universe was succesfull
+int universe_add_item (universe_t *U, char *token) {
     int token_len = strlen(token);
     // najprv overime, ci je dlzka nanajvys 30
     if (token_len > UNIVERSE_MAX_CHARS) {
@@ -103,7 +104,12 @@ int universe_add (universe_t *U, char *token) {
         return 0;
     }
 
-    // alokumeme miesto pre pointer na char, cize zaciatok nejakeho stringu
+    // we first have to check if the item we're adding is valid 
+    if (!universe_valid_item(token)) {
+        return 0;
+    }
+
+    // allocate memory for new pointer to string
     char **temp = (char **) realloc(U->items, ++U->num_items * sizeof(char *));
     if (temp == NULL) { // if realloc failed
         return 0;
@@ -111,16 +117,12 @@ int universe_add (universe_t *U, char *token) {
     // if realloc worked
     U->items = temp;
 
-    // alokujeme miesto pre samostny string
+    // allocate memory for new item/string
     U->items[U->num_items - 1] = (char *) malloc(sizeof(token_len));
     if (U->items[U->num_items - 1] == NULL) {
         return 0;
     }
     
-    if (!universe_valid_item(token)) {
-        return 0;
-    }
-
     U->items[U->num_items - 1] = token;
 
     return 1;
@@ -129,6 +131,7 @@ int universe_add (universe_t *U, char *token) {
 // returns true if all condiotions for item in universe are met
 bool universe_valid_item (const char *string) {
     if (!contains_eng_alphabet_chars(string)) {
+        printf("%s\n", string);
         fprintf(stderr, "[ERROR] Universe must only contain lowercase and uppercase characters.\n");
         return false;
     }
@@ -213,6 +216,7 @@ int run (FILE* fp) {
         }
         printf ("Line: %d - %s", ++line_count, buffer); 
         char *element = strtok(buffer, " ");
+        (void) element; // TODO
     }
     return 0;
 }
