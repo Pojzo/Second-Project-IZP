@@ -5,7 +5,6 @@
 #include <ctype.h>
 
 // test:
-// hello
 
 const int UNIVERSE_MAX_CHARS = 30; // maximalna dlzka prvku v univerze
 const int NUM_ARGUMENTS = 2;
