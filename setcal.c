@@ -1,25 +1,24 @@
-//projekt
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
 
-// test:
-// hello
 
-const int UNIVERSE_MAX_CHARS = 30; // maximalna dlzka prvku v univerze
-const int NUM_ARGUMENTS = 2;
-const int NUM_SET_COMMANDS = 9;
-const int NUM_REL_COMMANDS = 10; 
-const int BUFFER_LEN = 20000;
+const int UNIVERSE_MAX_CHARS = 30; // maximum length of an item in Universe
+const int NUM_ARGUMENTS = 2; // maximum number of arguments on command line
+const int NUM_SET_COMMANDS = 9; // number of commands for Set
+const int NUM_REL_COMMANDS = 10; // number of commands for Relation
+const int BUFFER_LEN = 20000; // size of buffer for storing lines from text file
 
 
+// commands for Set
 const char* set_commands[] = {"empty", "card", "complement", "union",
-                            "intersect", "minus", "subseteq", "subset",                     //autor: petec kovac(xpetko66)
+                            "intersect", "minus", "subseteq", "subset",                    
                             "equals"};
 
-const char *rel_commands[] = {"reflexive", "symmetric", "antisymmetric",               //napisal peter kovac(xkovac66)
+// commands for Relation
+const char *rel_commands[] = {"reflexive", "symmetric", "antisymmetric",              
                                    "transitive", "function", "domain", "codomain", 
                                    "injective", "surjective", "bijective"};
 
@@ -45,26 +44,24 @@ bool is_true_false (const char *string);
 int run(FILE *fp);
 
 int main (int argc, char **argv) {
-
-    if (!enough_arguments(argc)) {
+    if (!enough_arguments(argc)) { // if there aren't enough arguments, terminate program
         return 1;
     }
 
-
-    const char *filename = argv[1];
+    const char *filename = argv[1]; // file we'll be working with 
     FILE *fp;
-    fp = fopen(filename, "r");
-    if(!fp){
+    fp = fopen (filename, "r");
+    if(!fp){ // if there was an error opening file
         fprintf(stderr, "Could not open file.\n");
         return 1;
     }
     
-    return run (fp);
+    return run (fp); // function that runs the whole program, reading from file and creating instances of data structures
 }
 
 // returns true if enough arguments are given
 bool enough_arguments (int argc) {
-    if (argc != NUM_ARGUMENTS) {
+    if (argc != NUM_ARGUMENTS) { // number of arguments must be exactly 2
         fprintf(stderr, "Invalid number of arguments.\n");
         return false;
     }
@@ -76,8 +73,8 @@ int universe_load (universe_t *U, char *line) {
     // na zaciatku nemame ziadne itemy, a pocet itemov je nula
     U->items = NULL;
     U->num_items = 0;
-    char *token = strtok(line, " ");
-    if (strcmp(token, "U") != 0) {
+    char *token = strtok(line, " "); // split line by space, strtok returns pointer to first string from split
+    if (strcmp(token, "U") != 0) { // definition of Universe must begin with 'U', otherwise it's invalid input
         fprintf(stderr, "[ERROR] Invalid Universum.\n"); 
         return 0;
     }
