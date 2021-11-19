@@ -10,6 +10,7 @@ const int NUM_ARGUMENTS = 2; // maximum number of arguments on command line
 const int NUM_SET_COMMANDS = 9; // number of commands for Set
 const int NUM_REL_COMMANDS = 10; // number of commands for Relation
 const int BUFFER_LEN = 20000; // size of buffer for storing lines from text file
+const int MAX_LINES = 1000; // maximum allowed number of lines on input
 
 
 // commands for Set
@@ -28,6 +29,25 @@ typedef struct Universe {
     size_t num_items;
 } universe_t;
 
+
+typedef struct Set {
+    char **items;
+    size_t num_items;
+} set_t; 
+
+
+typedef struct Relation {
+    char **items;
+    size_t num_items;
+} rel_t; 
+
+
+typedef struct Line {
+    set_t *set;
+    rel_t *rel;
+} line_t;
+
+
 // prototypes of functions
 bool enough_arguments (int argc);
 
@@ -36,14 +56,26 @@ int universe_load (universe_t *U, char *line);
 int universe_add_item (universe_t *U, char *word);
 bool universe_valid_item (const char *string);
 void universe_print (universe_t *U);
+void universe_free (universe_t *U);
+void free_all(universe_t *U);
+
+// prototypes of functions for sets
+set_t *set_ctor ();
+char* find_string (char **array, size_t array_len, const char* string);
+int set_add_item (universe_t *U, set_t* S, const char* item);
 
 bool contains_eng_alphabet_chars (const char *string);
 bool is_command (const char *string);
 bool is_true_false (const char *string);
 
+int line_load (const universe_t *U, line_t *line, char *buffer);
+
 int run(FILE *fp);
 
 int main (int argc, char **argv) {
+
+
+    return 0;
     if (!enough_arguments(argc)) { // if there aren't enough arguments, terminate program
         return 1;
     }
@@ -153,6 +185,19 @@ void universe_print(universe_t *U) {
     printf("\n");
 }
 
+
+
+void universe_free (universe_t *U) {
+    for (size_t i = 0; i < U->num_items; i++) {
+        free(U->items[i]);
+    }
+    free(U->items);
+}
+
+void free_all(universe_t *U) {
+    universe_free(U);
+}
+
 // returns true if all characters from the string are from english alphabet 
 bool contains_eng_alphabet_chars (const char *string) {
     char c;
@@ -201,23 +246,142 @@ bool is_true_false (const char *string) {
     return false;
 }
 
-// main program, returns 1 when an error occurs
-int run (FILE* fp) {
-    int line_count = 0;
-    char buffer[BUFFER_LEN];
-    universe_t U;
-    while (fgets(buffer, BUFFER_LEN, fp)) { 
-        // ked sme na zaciatku, tak nacitame universe, riadok = 0
-        if (line_count == 0) {
-            if (!universe_load (&U, buffer)) {
-                return 1;
-            }
-            universe_print(&U);
+// returns pointer to newly created set
+set_t *set_ctor () {
+    set_t *S = (set_t*) malloc( sizeof(set_t));
+    S->items = NULL;
+    S->num_items = 0;
+
+    return S;
+}
+
+// returns true if array contains given string
+char *find_string (char **array, size_t array_len, const char* string) {
+    for (size_t i = 0; i < array_len; i++) {
+        // if strings matches array[i]
+        if (strcmp(array[i], string) == 0) {
+            return array[i];
         }
-        printf ("Line: %d - %s", ++line_count, buffer); 
-        char *element = strtok(buffer, " ");
-        (void) element; // TODO
+    }
+    return NULL;
+}
+
+
+// add new item to set
+int set_add_item (universe_t *U, set_t *S, const char* item) {
+    // every item in set must be contained in universe
+    char* new_item = find_string(U->items, U->num_items, item);
+    if (new_item = NULL) {
+        fprintf (stderr, "[ERROR] Set must only contain elments from universe.\n");
+        return 0;
+    }
+    // allocate space for new pointer to char
+    char **temp = (char **) realloc(S->items, (S->num_items + 1) * sizeof (char*));
+
+    // if realloc failed
+    if (temp == NULL) {
+        fprintf(stderr, "[ERROR] Couldn't allocate space for.\n");
+        return 0;
+    }
+
+    // assign newly allocated memory to set
+    S->items = temp;
+    S->items[S->num_items] = new_item;
+    S->num_items++; 
+
+    return 1;
+}
+
+void set_print (set_t *S) {
+    for (size_t i = 0; i < S->num_items; i++) {
+        printf ("%s ", S->items[i]);
+    }
+    printf("\n");
+}
+
+int set_load (universe_t *U, set_t *S, char *buffer) {
+    char *token = strtok(buffer, " ");
+    // first string would be 'S'
+    token = strtok (NULL, " ");
+    while (token != NULL) {
+        // if adding to set was not successful, return error
+        if (!set_add_item (U, S, token)) {
+            return 1;
+        }
+        token = strtok (NULL, " ");
     }
     return 0;
 }
 
+int line_load (const universe_t *U, line_t *line, char *buffer) {
+    // if line starts with R
+    if (buffer[0] == 'R') {
+        rel_t rel;
+        // if loading realtion was successful
+        if(!rel_load (&rel, buffer)) {
+            fprintf (stderr, "[ERROR] Failed to load relation.\n");
+            return 1;
+        }
+        line->rel = rel;
+        line->set = NULL;
+        
+        return 0;
+    }
+    
+    set_t set;
+    // if loading set was successful
+    if (!set_load(&set, buffer)) {
+        fprintf (stderr, "[ERROR] Failed to load set.\n");
+        return 1;
+    }
+    line->set = set;
+    line->rel = NULL;
+
+    // if everything went well, return 0
+    return 0;
+}
+
+// main program, returns 1 when an error occurs
+int run(FILE *fp)
+{
+    line_t lines[MAX_LINES];
+
+    int line_count = 0;
+    char buffer[BUFFER_LEN];
+    universe_t U;
+    bool ready_com = 0;
+    while (fgets(buffer, BUFFER_LEN, fp))
+    {
+        // ked sme na zaciatku, tak nacitame universe, riadok = 0
+
+        if (line_count == 0)
+        {
+            printf("Line: %d - %s", ++line_count, buffer);
+            if (!universe_load(&U, buffer))
+            {
+                universe_free(&U);
+                return 1;
+            }
+            universe_print(&U);
+        }
+
+        if ((buffer[0] == 'R' || buffer[0] == 'S') && !ready_com)
+        {
+            if (buffer[1] != ' ')
+            {
+                fprintf(stderr, "[ERROR] Invalid input.\n");
+                return 1;
+            }
+            if (!line_load(&U, &lines[line_count], buffer))
+            {
+                return 1;
+            }
+            ++line_count;
+        }
+
+        printf("Line: %d - %s", ++line_count, buffer);
+        char *element = strtok(buffer, " ");
+        (void)element; // TODO
+    }
+    return 0;
+}
