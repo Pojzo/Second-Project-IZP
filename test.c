@@ -4,42 +4,48 @@
 #include <ctype.h>
 #define MAX_STRINGS 20
 
-void empty_string(char *string) {
-    for (size_t i = 0; i < strlen(string); i++) {
-    }
-}
-
 int main() {
-    const char *string = "U mojkokot tvojkokot jejkokot pizedolsimikokot picifdasfsd";
-    char **strings = (char **) malloc(MAX_STRINGS * sizeof(char*));
-    int n_strings = 0;
-    int cur_index = 0;
-    char cur_string[30];
+    const char *string = "U mojkokot tvojkokot jejkokot pizedolsimikokot";
+    char *strings[10];
+    int num_words = 0;
     int num_spaces = 0;
+    char cur_word[30];
+    int cur_index = 0;
     for (size_t i = 0; i < strlen(string); i++) {
         if (string[i] == ' ') {
             if (num_spaces == 1) {
-                fprintf(stderr, "Dve medzery su tam.\n");
+                fprintf(stderr, "zle\n");
                 return 1;
             }
-            ++num_spaces;
-            continue;
-        }
-        else {
-            if (num_spaces == 1)  {
-                strings[n_strings] = (char *)malloc(cur_index + 1);
-                memcpy(strings[n_stri
-                num_spaces = 0;
+            else {
+                //strings = realloc(strings, (num_words + 1) * sizeof(char *));
+                strings[num_words] = malloc(cur_index);
+                memcpy(strings[num_words], cur_word, cur_index);
+                ++num_words;
+                num_spaces = 1;
                 cur_index = 0;
             }
-            else {
-                cur_string[cur_index] = string[i];
-                ++cur_index;
-            }
+        }
+        else {
+            cur_word[cur_index] = string[i];
+            ++cur_index;
+            num_spaces = 0;
         }
     }
-    for (int i = 0; i < n_strings; i++) {
-        printf("%d. %s\n", (i + 1), strings[i]);
+    if (num_spaces == 0) {
+        //strings = realloc(strings, (num_words + 1) * sizeof(char *));
+        strings[num_words] = malloc(cur_index);
+        memcpy(strings[num_words], cur_word, cur_index);
+        ++num_words;
+    }
+    else {
+        fprintf(stderr, "Zle brasko\n");
+        return 1;
+    }
+
+    for (int i = 0; i < num_words; i++) {
+        printf("%s\n", strings[i]);
+        free(strings[i]);
     }
 
     return 0;
