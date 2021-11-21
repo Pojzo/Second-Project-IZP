@@ -35,9 +35,13 @@ typedef struct Set {
     size_t num_items;
 } set_t; 
 
+typedef struct Pair {
+    const char *first;
+    const char *second;
+} pair_t;
 
 typedef struct Relation {
-    char **items;
+    pair_t *pairs;
     size_t num_items;
 } rel_t; 
 
@@ -63,19 +67,22 @@ void free_all(universe_t *U);
 set_t *set_ctor ();
 char* find_string (char **array, size_t array_len, const char* string);
 int set_add_item (universe_t *U, set_t* S, const char* item);
+void set_print (set_t *set);
+int set_load (universe_t *U, set_t *S, char *buffer);
+
+// protoypes of functions for relations
+int rel_load (universe_t *U, rel_t *rel, char *buffer);
 
 bool contains_eng_alphabet_chars (const char *string);
 bool is_command (const char *string);
 bool is_true_false (const char *string);
 
-int line_load (const universe_t *U, line_t *line, char *buffer);
+int line_load (universe_t *U, line_t *line, char *buffer);
 
 int run(FILE *fp);
 
 int main (int argc, char **argv) {
 
-
-    return 0;
     if (!enough_arguments(argc)) { // if there aren't enough arguments, terminate program
         return 1;
     }
@@ -86,7 +93,7 @@ int main (int argc, char **argv) {
     if(!fp){ // if there was an error opening file
         fprintf(stderr, "Could not open file.\n");
         return 1;
-    }
+        }
     
     return run (fp); // function that runs the whole program, reading from file and creating instances of data structures
 }
@@ -163,7 +170,6 @@ int universe_add_item (universe_t *U, char *token) {
 // returns true if all condiotions for item in universe are met
 bool universe_valid_item (const char *string) {
     if (!contains_eng_alphabet_chars(string)) {
-        printf("%s\n", string);
         fprintf(stderr, "[ERROR] Universe must only contain lowercase and uppercase characters.\n");
         return false;
     }
@@ -271,7 +277,7 @@ char *find_string (char **array, size_t array_len, const char* string) {
 int set_add_item (universe_t *U, set_t *S, const char* item) {
     // every item in set must be contained in universe
     char* new_item = find_string(U->items, U->num_items, item);
-    if (new_item = NULL) {
+    if (new_item == NULL) {
         fprintf (stderr, "[ERROR] Set must only contain elments from universe.\n");
         return 0;
     }
@@ -300,7 +306,7 @@ void set_print (set_t *S) {
 }
 
 int set_load (universe_t *U, set_t *S, char *buffer) {
-    char *token = strtok(buffer, " ");
+    char *token = strtok (buffer, " ");
     // first string would be 'S'
     token = strtok (NULL, " ");
     while (token != NULL) {
@@ -313,28 +319,34 @@ int set_load (universe_t *U, set_t *S, char *buffer) {
     return 0;
 }
 
-int line_load (const universe_t *U, line_t *line, char *buffer) {
+int rel_load (universe_t *U, rel_t *rel, char *buffer) {
+    (void)U;
+    (void)rel;
+    (void)buffer;
+    return 0;
+}
+
+int line_load (universe_t *U, line_t *line, char *buffer) {
+    set_t set;
     // if line starts with R
     if (buffer[0] == 'R') {
         rel_t rel;
         // if loading realtion was successful
-        if(!rel_load (&rel, buffer)) {
+        if(!rel_load (U,&rel, buffer)) { 
             fprintf (stderr, "[ERROR] Failed to load relation.\n");
             return 1;
         }
-        line->rel = rel;
         line->set = NULL;
         
         return 0;
     }
     
-    set_t set;
     // if loading set was successful
-    if (!set_load(&set, buffer)) {
+    if (!set_load(U, &set, buffer)) {
         fprintf (stderr, "[ERROR] Failed to load set.\n");
         return 1;
     }
-    line->set = set;
+    line->set = &set;
     line->rel = NULL;
 
     // if everything went well, return 0
@@ -342,44 +354,34 @@ int line_load (const universe_t *U, line_t *line, char *buffer) {
 }
 
 // main program, returns 1 when an error occurs
-int run(FILE *fp)
-{
+int run(FILE *fp) {
     line_t lines[MAX_LINES];
 
     int line_count = 0;
     char buffer[BUFFER_LEN];
     universe_t U;
     bool ready_com = 0;
-    while (fgets(buffer, BUFFER_LEN, fp))
-    {
-        // ked sme na zaciatku, tak nacitame universe, riadok = 0
-
-        if (line_count == 0)
-        {
-            printf("Line: %d - %s", ++line_count, buffer);
-            if (!universe_load(&U, buffer))
-            {
+    while (fgets(buffer, BUFFER_LEN, fp)) { // ked sme na zaciatku, tak nacitame universe, riadok = 0
+        if (line_count == 0) {
+            printf("Line: %d - %s\n", ++line_count, buffer);
+            if (!universe_load(&U, buffer)) {
                 universe_free(&U);
                 return 1;
             }
             universe_print(&U);
         }
 
-        if ((buffer[0] == 'R' || buffer[0] == 'S') && !ready_com)
-        {
-            if (buffer[1] != ' ')
-            {
+        if ((buffer[0] == 'R' || buffer[0] == 'S') && !ready_com) {
+            if (buffer[1] != ' ') {
                 fprintf(stderr, "[ERROR] Invalid input.\n");
                 return 1;
             }
-            if (!line_load(&U, &lines[line_count], buffer))
-            {
+            if (!line_load(&U, &lines[line_count], buffer)) {
                 return 1;
             }
             ++line_count;
         }
 
-        printf("Line: %d - %s", ++line_count, buffer);
         char *element = strtok(buffer, " ");
         (void)element; // TODO
     }
