@@ -117,6 +117,7 @@ void split_string(char ***words, const char *string, int *num_words)  {
     for (size_t i = 0; i < strlen(string); i++) {
         if (string[i] == ' ') {
             if (num_spaces == 1) {
+                *num_words = -1;
                 return;
             }
             else {
@@ -138,8 +139,8 @@ void split_string(char ***words, const char *string, int *num_words)  {
 
     if (num_spaces == 0) {
         *words = realloc(*words, (*num_words + 1) * sizeof(char *));
-        (*words)[*num_words] = calloc(' ', cur_index);
-        memcpy((*words)[*num_words], cur_word, cur_index);
+        (*words)[*num_words] = calloc(' ', cur_index-1);
+        memcpy((*words)[*num_words], cur_word, cur_index-1);
         ++(*num_words);
     }
     else {
@@ -158,6 +159,7 @@ int universe_load (universe_t *U, char *line) {
 
     split_string(&words, line, &num_words);
     if (num_words == -1) {
+        fprintf(stderr,"[ERROR] invalid definition of universum\n");
         return 0;
     }
     const char *identifier = words[0];
@@ -350,15 +352,20 @@ void set_print (set_t *S) {
 }
 
 int set_load (universe_t *U, set_t *S, char *buffer) {
-    char *token = strtok (buffer, " ");
-    // first string would be 'S'
-    token = strtok (NULL, " ");
-    while (token != NULL) {
-        // if adding to set was not successful, return error
-        if (!set_add_item (U, S, token)) {
+    char **elements = NULL;
+    int num_elements = 0;
+    split_string(&elements, buffer, &num_elements);
+
+    if (num_elements == -1) {
+        fprintf(stderr, "[ERROR] Invalid definition of set\n");
+        return 0;
+    }
+
+    // load every word to set
+    for (int i = 1; i < num_elements; i++) {
+        if (!set_add_item (U, S, elements[i])) {
             return 1;
         }
-        token = strtok (NULL, " ");
     }
     return 0;
 }
@@ -371,7 +378,7 @@ int rel_load (universe_t *U, rel_t *rel, char *buffer) {
 }
 
 int line_load (universe_t *U, line_t *line, char *buffer) {
-    set_t set;
+    set_t* set = set_ctor();
     // if line starts with R
     if (buffer[0] == 'R') {
         rel_t rel;
@@ -386,12 +393,13 @@ int line_load (universe_t *U, line_t *line, char *buffer) {
     }
 
     // if loading set was successful
-    if (!set_load(U, &set, buffer)) {
+    if (set_load(U, set, buffer)) {
         fprintf (stderr, "[ERROR] Failed to load set.\n");
         return 1;
     }
-    line->set = &set;
+    line->set = set;
     line->rel = NULL;
+    set_print (set);
 
     // if everything went well, return 0
     return 0;
