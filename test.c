@@ -4,10 +4,8 @@
 #include <ctype.h>
 #define MAX_STRINGS 20
 
-int main() {
-    const char *string = "U mojkokot tvojkokot jejkokot pizedolsimikokot";
-    char *strings[10];
-    int num_words = 0;
+void split_string(char ***words, const char *string, int *num_words)  {
+    *num_words = 0;
     int num_spaces = 0;
     char cur_word[30];
     int cur_index = 0;
@@ -15,13 +13,14 @@ int main() {
         if (string[i] == ' ') {
             if (num_spaces == 1) {
                 fprintf(stderr, "zle\n");
-                return 1;
+                return;
             }
             else {
-                //strings = realloc(strings, (num_words + 1) * sizeof(char *));
-                strings[num_words] = malloc(cur_index);
-                memcpy(strings[num_words], cur_word, cur_index);
-                ++num_words;
+                *words = realloc(*words, (*num_words + 1) * sizeof(char *));
+                (*words)[*num_words] = calloc(' ', cur_index);
+                cur_word[cur_index] = '\0';
+                memcpy((*words)[*num_words], cur_word, cur_index);
+                ++(*num_words);
                 num_spaces = 1;
                 cur_index = 0;
             }
@@ -32,21 +31,31 @@ int main() {
             num_spaces = 0;
         }
     }
+
     if (num_spaces == 0) {
-        //strings = realloc(strings, (num_words + 1) * sizeof(char *));
-        strings[num_words] = malloc(cur_index);
-        memcpy(strings[num_words], cur_word, cur_index);
-        ++num_words;
+        *words = realloc(*words, (*num_words + 1) * sizeof(char *));
+        (*words)[*num_words] = calloc(' ', cur_index);
+        memcpy((*words)[*num_words], cur_word, cur_index);
+        ++(*num_words);
     }
     else {
         fprintf(stderr, "Zle brasko\n");
-        return 1;
+        *num_words = -1;
+        return;
     }
+}
 
-    for (int i = 0; i < num_words; i++) {
-        printf("%s\n", strings[i]);
-        free(strings[i]);
+
+int main() {
+    const char *string = "U mojkokot tvojkokot jejkokot pizedolsimikokot";
+    char **words = malloc(sizeof(char *));
+    int num_words = 0;
+    split_string(&words, string, &num_words);
+    printf("%d\n", num_words);
+
+    for (int i = 0; i < 5; i++) {
+        printf("%s\n", words[i]);
     }
-
     return 0;
+
 }

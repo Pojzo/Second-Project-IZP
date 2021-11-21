@@ -53,6 +53,7 @@ typedef struct Line {
 
 // prototypes of functions
 bool enough_arguments (int argc);
+void split_string(char ***words, const char *string, int *num_words);
 
 // prototypes of functions for universe
 int universe_load (universe_t *U, char *line);
@@ -106,10 +107,74 @@ bool enough_arguments (int argc) {
     return true;
 }
 
-// load elements to universe from text file
+// function splits 'strings' by spaces, stores them into words and stores
+// length of words in variable 'num_words'
+void split_string(char ***words, const char *string, int *num_words)  {
+    *num_words = 0;
+    int num_spaces = 0;
+    char cur_word[30];
+    int cur_index = 0;
+    for (size_t i = 0; i < strlen(string); i++) {
+        if (string[i] == ' ') {
+            if (num_spaces == 1) {
+                return;
+            }
+            else {
+                *words = realloc(*words, (*num_words + 1) * sizeof(char *));
+                (*words)[*num_words] = calloc(' ', cur_index);
+                cur_word[cur_index] = '\0';
+                memcpy((*words)[*num_words], cur_word, cur_index);
+                ++(*num_words);
+                num_spaces = 1;
+                cur_index = 0;
+            }
+        }
+        else {
+            cur_word[cur_index] = string[i];
+            ++cur_index;
+            num_spaces = 0;
+        }
+    }
+
+    if (num_spaces == 0) {
+        *words = realloc(*words, (*num_words + 1) * sizeof(char *));
+        (*words)[*num_words] = calloc(' ', cur_index);
+        memcpy((*words)[*num_words], cur_word, cur_index);
+        ++(*num_words);
+    }
+    else {
+        *num_words = -1;
+    }
+}
+
+
+// load elements into universe from line
 int universe_load (universe_t *U, char *line) {
+    // na zaciatku nemame ziadne itemy, a pocet itemov je nula
     U->items = NULL;
     U->num_items = 0;
+    char **words = NULL;
+    int num_words;
+
+    split_string(&words, line, &num_words);
+    if (num_words == -1) {
+        return 0;
+    }
+    const char *identifier = words[0];
+    if (strcmp(identifier, "U") != 0) {
+        fprintf(stderr, "[ERROR] Invalid definition for Universum.\n"); 
+        return 0;
+    }
+    // load every word to universe
+    char *cur_word;
+    for (int i = 1; i < num_words; i++) {
+        // remove trailing newline, if there is one
+        cur_word = strtok(words[i], "\n");
+        if (!universe_add_item(U, cur_word)) {
+            return 0;
+        }
+    }
+    return 1;
 }
 
 
@@ -140,7 +205,7 @@ int universe_add_item (universe_t *U, char *token) {
     if (U->items[U->num_items - 1] == NULL) {
         return 0;
     }
-    
+
     U->items[U->num_items - 1] = token;
 
     return 1;
@@ -316,10 +381,10 @@ int line_load (universe_t *U, line_t *line, char *buffer) {
             return 1;
         }
         line->set = NULL;
-        
+
         return 0;
     }
-    
+
     // if loading set was successful
     if (!set_load(U, &set, buffer)) {
         fprintf (stderr, "[ERROR] Failed to load set.\n");
@@ -349,7 +414,6 @@ int run(FILE *fp) {
             }
             universe_print(&U);
         }
-
         if ((buffer[0] == 'R' || buffer[0] == 'S') && !ready_com) {
             if (buffer[1] != ' ') {
                 fprintf(stderr, "[ERROR] Invalid input.\n");
