@@ -70,17 +70,22 @@ int set_add_item(universe_t *U, set_t* S, const char* item);
 void set_print(set_t *set);
 int set_load(universe_t *U, set_t *S, const char *buffer);
 
-// protoypes of functions for relations
+// prototypes of functions for relations
+rel_t *rel_ctor();
 int rel_load(universe_t *U, rel_t *rel, char *buffer);
 int rel_add_pair(universe_t *U, rel_t *rel, const char *first, const char *second);
 void rel_print(rel_t *rel);
 
 bool contains_eng_alphabet_chars(const char *string);
 bool is_command(const char *string);
+bool is_set_command(const char *string);
+bool is_rel_command(const char *string);
 bool is_true_false(const char *string);
 
 int line_load(universe_t *U, line_t *line, char *buffer);
 int process_command(line_t *lines, int num_lines, const char *buffer);
+int process_set_comm(line_t *lines, int num_words, char **words, int num_lines);
+int process_rel_comm(line_t *lines, int num_words, char **words, int num_lines);
 
 int run(FILE *fp);
 
@@ -268,9 +273,16 @@ bool contains_eng_alphabet_chars (const char *string) {
 
 // returns true if given string matches with a command
 bool is_command (const char *string) {
+    return is_rel_command(string) || is_set_command(string);
+}
+
+// returns true if given string matches with a set command
+bool is_set_command (const char *string) {
+
     int string_len = strlen(string);
     char lower[string_len];
     for (int i = 0; i < string_len; i++) {
+
         lower[i] = tolower(string[i]);
     }
 
@@ -279,13 +291,30 @@ bool is_command (const char *string) {
             return true;
         }
     }
+    
+    return false;
+}
+
+// returns true if given string matches with a relation command
+bool is_rel_command (const char *string) {
+
+    int string_len = strlen(string);
+    char lower[string_len];
+
+    for (int i = 0; i < string_len; i++) {
+        lower[i] = tolower(string[i]);
+    }
+
     for (int i = 0; i < NUM_REL_COMMANDS; i++) {
         if (strcmp(lower, rel_commands[i]) == 0) {
             return true;
         }
     }
+
     return false;
 }
+
+// returns true if given string is "true" of "false"
 bool is_true_false (const char *string) {
     int string_len = strlen(string);
     char lower[string_len];
@@ -374,6 +403,16 @@ int set_load (universe_t *U, set_t *S, const char *buffer) {
     }
     return 0;
 }
+
+// return pointer to newly created relation
+rel_t *rel_ctor () {
+    rel_t *rel = (rel_t*) malloc(sizeof(rel_t));
+    rel->pairs = NULL;
+    rel->num_items = 0;
+
+    return rel;
+}
+
 
 int rel_load (universe_t *U, rel_t *rel, char *buffer) {
     char **words = NULL;
@@ -467,24 +506,25 @@ void rel_print(rel_t *rel) {
 
 
 int line_load(universe_t *U, line_t *line, char *buffer) {
-    set_t* set = set_ctor();
     // if line starts with R
     if (buffer[0] == 'R') {
-        rel_t rel;
-        rel.pairs = (pair_t **) malloc(sizeof(pair_t));
-        rel.num_items = 0;
+        rel_t *rel = rel_ctor();
+        rel->pairs = (pair_t **) malloc(sizeof(pair_t));
+        rel->num_items = 0;
         // if loading realtion was successful
-        if(!rel_load(U,&rel, buffer)) { 
+        if(!rel_load(U, rel, buffer)) { 
             fprintf(stderr, "[ERROR] Failed to load relation.\n");
             return 0;
         }
-        rel_print(&rel);
+        rel_print(rel);
         line->set = NULL;
+        line->rel = rel;
 
         return 1;
     }
 
     // if loading set was successful
+    set_t* set = set_ctor();
     if (set_load(U, set, buffer)) {
         fprintf(stderr, "[ERROR] Failed to load set.\n");
         return 0;
@@ -493,18 +533,65 @@ int line_load(universe_t *U, line_t *line, char *buffer) {
     line->rel = NULL;
     set_print(set);
 
-    // if everything went well, return 0
+    // if everything went well, return 1
     return 1;
 }
 
 // returns 1 if processing command was successful
 int process_command(line_t *lines, int num_lines, const char* buffer) {
-    (void) lines;
-    (void) num_lines;
-    (void) buffer;
 
-    // TODO
-    return 0;
+    char **words = NULL;
+    int num_words;
+
+    if (buffer[1] != ' ') {
+        fprintf(stderr, "[ERROR] Invalid definition of command.\n");
+        return 0;
+    }
+
+    split_string(&words, buffer, &num_words);
+
+    if (num_words == -1) {
+        fprintf(stderr,"[ERROR] invalid definition of command\n");
+        return 0;
+    }
+
+    if (is_set_command(words[1])) {
+        if (!process_set_comm(lines, num_words, words, num_lines)) {
+            fprintf(stderr, "[ERROR] Invalid definition of command");
+            return 0;
+        }
+    }
+    else if (is_set_command(words[1])) {
+        if (!process_rel_comm(lines, num_words, words, num_lines)) {
+            fprintf(stderr, "[ERROR] Invalid definition of command");
+            return 0;
+        }
+    }
+    else {
+        fprintf(stderr, "[ERROR] Invalid definition of command");
+        return 0;
+    }
+
+    return 1;
+}
+
+int process_set_comm(line_t *lines, int num_words, char **words, int num_lines) {
+    (void) lines;
+    (void) num_words;
+    (void) words;
+    (void) num_lines;
+    
+    return 1;
+}
+
+
+int process_rel_comm(line_t *lines, int num_words, char **words, int num_lines) {
+    (void) lines;
+    (void) num_words;
+    (void) words;
+    (void) num_lines;
+    
+    return 1;
 }
 
 // main program, returns 1 when an error occurs
@@ -514,7 +601,7 @@ int run(FILE *fp) {
     int line_count = 0;
     char buffer[BUFFER_LEN];
     universe_t U;
-    bool ready_for_command = false;
+    bool command_only = false;
     while (fgets(buffer, BUFFER_LEN, fp)) { // ked sme na zaciatku, tak nacitame universe, riadok = 0
         // allocate space for another line
         if (line_count == 0) {
@@ -527,7 +614,7 @@ int run(FILE *fp) {
         if ((buffer[0] == 'R' || buffer[0] == 'S')) {
             lines = (line_t *) realloc(lines, (line_count + 1) * sizeof(line_t));
             // relations and sets must be defined before reading commands
-            if (ready_for_command) {
+            if (command_only) {
                 return 1;
             }
 
@@ -544,8 +631,14 @@ int run(FILE *fp) {
         if (buffer[0] == 'C') {
             // if buffer on index 1 exists and it is not space 
             if (buffer[1] && buffer[1] != ' ') {
-                ready_for_command = true;
-                process_command(lines, line_count, buffer);
+                command_only = true;
+                if (!process_command(lines, line_count, buffer)) {
+                    return 1;
+
+                }
+            }
+            else {
+                
             }
         }
         ++line_count;
