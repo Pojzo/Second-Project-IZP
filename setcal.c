@@ -171,7 +171,7 @@ int universe_load (universe_t *U, char *line) {
     char *cur_word;
     for (int i = 1; i < num_words; i++) {
         // remove trailing newline, if there is one
-        cur_word = strtok(words[i], "\n");
+        cur_word = words[i];
         if (!universe_add_item(U, cur_word)) {
             return 0;
         }
