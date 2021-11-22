@@ -383,6 +383,7 @@ int rel_load (universe_t *U, rel_t *rel, char *buffer) {
         fprintf(stderr, "[ERROR] Invalid definition of a relation\n");
         return 0;
     }
+    // there must be an odd number of words 
     if (num_words % 2 == 0) {
         fprintf(stderr, "[ERROR] Invalid definition of a relation\n");
         return 0;
@@ -425,22 +426,32 @@ int rel_add_pair(universe_t *U, rel_t *rel, const char *first, const char *secon
     // find second string in universe
     char *new_item_second = find_string(U->items, U->num_items, modified_second);
 
-    if(new_item_first == NULL || new_item_second == NULL) { // if its not contained in universe
+    // if either of the words is not contained in universe, return 0;
+    if(new_item_first == NULL || new_item_second == NULL) { 
         printf("%s %s\n", modified_first, modified_second);
         fprintf (stderr, "[ERROR] Relation must only contain items from universe\n");
         return 0;
     }
+    // increase number of items by one
     rel->num_items++;
+    // allocate memory for pointer to new pair
     rel->pairs = (pair_t **) realloc(rel->pairs, rel->num_items * sizeof(pair_t*));
 
     // index to add new pair to 
     int cur_index = rel->num_items - 1;
+    // allocate memory for new pair
     rel->pairs[cur_index] = (pair_t *) malloc(sizeof(pair_t));
 
+    // allocate memory for pointer to first word of the pair
     rel->pairs[cur_index]->first = (char *) malloc(strlen(new_item_first));
+
+    // allocate memoryf for pointer to second word of the pair
     rel->pairs[cur_index]->second = (char *) malloc(strlen(new_item_second));
 
+    // copy first word to pair 
     strcpy(rel->pairs[cur_index]->first, new_item_first);
+
+    // copy second word to pair
     strcpy(rel->pairs[cur_index]->second, new_item_second);
 
     return 1;
