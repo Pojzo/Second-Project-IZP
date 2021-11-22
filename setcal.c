@@ -382,6 +382,7 @@ int rel_load (universe_t *U, rel_t *rel, char *buffer) {
         return 0;
     }
     
+    printf("R: ");
     for (int i = 0; i < num_words; i++) {
         printf("%s ", words[i]);   
     }
@@ -433,7 +434,7 @@ int process_command(line_t *lines, int num_lines, const char* buffer) {
 
 // main program, returns 1 when an error occurs
 int run(FILE *fp) {
-    line_t *lines = malloc(5 * sizeof(line_t));
+    line_t *lines = malloc(sizeof(line_t));
 
     int line_count = 0;
     char buffer[BUFFER_LEN];
@@ -449,7 +450,7 @@ int run(FILE *fp) {
             universe_print(&U);
         }
         if ((buffer[0] == 'R' || buffer[0] == 'S')) {
-            //lines = (line_t *) realloc(lines, line_count * sizeof(line_t));
+            lines = (line_t *) realloc(lines, (line_count + 1) * sizeof(line_t));
             // relations and sets must be defined before reading commands
             if (ready_for_command) {
                 return 1;

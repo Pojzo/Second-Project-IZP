@@ -1,2 +1,3 @@
-U mojkokot tvojkokot jejkokot pizedolsimikokot picifdasfsd
-S tvojkokot jejkokot
+U dad mom girl boy man woman
+R (dad boy) (dad girl) (mom boy) (mom girl)
+R (dad man) (boy man) (mom woman) (girl woman)
