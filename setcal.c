@@ -407,7 +407,7 @@ int set_load (universe_t *U, set_t *S, const char *buffer) {
 // return pointer to newly created relation
 rel_t *rel_ctor () {
     rel_t *rel = (rel_t*) malloc(sizeof(rel_t));
-    rel->pairs = NULL;
+    rel->pairs = malloc(sizeof(pair_t));
     rel->num_items = 0;
 
     return rel;
@@ -509,8 +509,6 @@ int line_load(universe_t *U, line_t *line, char *buffer) {
     // if line starts with R
     if (buffer[0] == 'R') {
         rel_t *rel = rel_ctor();
-        rel->pairs = (pair_t **) malloc(sizeof(pair_t));
-        rel->num_items = 0;
         // if loading realtion was successful
         if(!rel_load(U, rel, buffer)) { 
             fprintf(stderr, "[ERROR] Failed to load relation.\n");
