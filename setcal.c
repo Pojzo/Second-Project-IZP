@@ -35,12 +35,12 @@ typedef struct Set {
 } set_t; 
 
 typedef struct Pair {
-    const char *first;
-    const char *second;
+    char *first;
+    char *second;
 } pair_t;
 
 typedef struct Relation {
-    pair_t *pairs;
+    pair_t **pairs;
     size_t num_items;
 } rel_t; 
 
@@ -72,6 +72,8 @@ int set_load(universe_t *U, set_t *S, const char *buffer);
 
 // protoypes of functions for relations
 int rel_load(universe_t *U, rel_t *rel, char *buffer);
+int rel_add_pair(universe_t *U, rel_t *rel, const char *first, const char *second);
+void rel_print(rel_t *rel);
 
 bool contains_eng_alphabet_chars(const char *string);
 bool is_command(const char *string);
@@ -381,29 +383,91 @@ int rel_load (universe_t *U, rel_t *rel, char *buffer) {
         fprintf(stderr, "[ERROR] Invalid definition of a relation\n");
         return 0;
     }
-    
-    printf("R: ");
-    for (int i = 0; i < num_words; i++) {
-        printf("%s ", words[i]);   
+    if (num_words % 2 == 0) {
+        fprintf(stderr, "[ERROR] Invalid definition of a relation\n");
+        return 0;
     }
-    printf("\n");
-    (void)U;
-    (void)rel;
-    (void)buffer;
+
+    // start after 'R', always increment by two
+    // (dad mom) (boy girl)
+    // take '(dad' and 'mom')
+    for (int i = 1; i < num_words; i += 2) {
+        if(!rel_add_pair(U, rel, words[i], words[i + 1])) {
+            return 0;
+        }
+    }
 
     return 1;
 }
 
-int line_load (universe_t *U, line_t *line, char *buffer) {
+// add pair to relation
+int rel_add_pair(universe_t *U, rel_t *rel, const char *first, const char *second) {
+    // left element must begin with (
+    if (first[0] != '(') {
+        return 0;
+    }
+
+    // right element must end with )
+    if (second[strlen(second) - 1] != ')') {
+        return 0;
+    }
+    // first string without (
+    char *modified_first = (char *) malloc(strlen(first) - 1);
+    memcpy(modified_first, first + 1, strlen(first) - 1);
+
+    // second string without )
+    char *modified_second = (char *) malloc(strlen(second) - 1);
+    memcpy(modified_second, second, strlen(second) - 1);
+
+    // find first string in universe
+    char *new_item_first = find_string(U->items, U->num_items, modified_first);
+
+    // find second string in universe
+    char *new_item_second = find_string(U->items, U->num_items, modified_second);
+
+    if(new_item_first == NULL || new_item_second == NULL) { // if its not contained in universe
+        printf("%s %s\n", modified_first, modified_second);
+        fprintf (stderr, "[ERROR] Relation must only contain items from universe\n");
+        return 0;
+    }
+    rel->num_items++;
+    rel->pairs = (pair_t **) realloc(rel->pairs, rel->num_items * sizeof(pair_t*));
+
+    // index to add new pair to 
+    int cur_index = rel->num_items - 1;
+    rel->pairs[cur_index] = (pair_t *) malloc(sizeof(pair_t));
+
+    rel->pairs[cur_index]->first = (char *) malloc(strlen(new_item_first));
+    rel->pairs[cur_index]->second = (char *) malloc(strlen(new_item_second));
+
+    strcpy(rel->pairs[cur_index]->first, new_item_first);
+    strcpy(rel->pairs[cur_index]->second, new_item_second);
+
+    return 1;
+}
+
+void rel_print(rel_t *rel) {
+    printf("R: ");
+    for (size_t i = 0; i < rel->num_items; i++) {
+        printf("(%s, %s) ", rel->pairs[i]->first, rel->pairs[i]->second);
+    }
+    printf("\n");
+}
+
+
+int line_load(universe_t *U, line_t *line, char *buffer) {
     set_t* set = set_ctor();
     // if line starts with R
     if (buffer[0] == 'R') {
         rel_t rel;
+        rel.pairs = (pair_t **) malloc(sizeof(pair_t));
+        rel.num_items = 0;
         // if loading realtion was successful
         if(!rel_load(U,&rel, buffer)) { 
             fprintf(stderr, "[ERROR] Failed to load relation.\n");
             return 0;
         }
+        rel_print(&rel);
         line->set = NULL;
 
         return 1;
