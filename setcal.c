@@ -52,32 +52,33 @@ typedef struct Line {
 
 
 // prototypes of functions
-bool enough_arguments (int argc);
+bool enough_arguments(int argc);
 void split_string(char ***words, const char *string, int *num_words);
 
 // prototypes of functions for universe
-int universe_load (universe_t *U, char *line);
-int universe_add_item (universe_t *U, char *word);
-bool universe_valid_item (const char *string);
-void universe_print (universe_t *U);
-void universe_free (universe_t *U);
+int universe_load(universe_t *U, char *line);
+int universe_add_item(universe_t *U, char *word);
+bool universe_valid_item(const char *string);
+void universe_print(universe_t *U);
+void universe_free(universe_t *U);
 void free_all(universe_t *U);
 
 // prototypes of functions for sets
-set_t *set_ctor ();
-char* find_string (char **array, size_t array_len, const char* string);
-int set_add_item (universe_t *U, set_t* S, const char* item);
-void set_print (set_t *set);
-int set_load (universe_t *U, set_t *S, char *buffer);
+set_t *set_ctor();
+char* find_string(char **array, size_t array_len, const char* string);
+int set_add_item(universe_t *U, set_t* S, const char* item);
+void set_print(set_t *set);
+int set_load(universe_t *U, set_t *S, const char *buffer);
 
 // protoypes of functions for relations
-int rel_load (universe_t *U, rel_t *rel, char *buffer);
+int rel_load(universe_t *U, rel_t *rel, char *buffer);
 
-bool contains_eng_alphabet_chars (const char *string);
-bool is_command (const char *string);
-bool is_true_false (const char *string);
+bool contains_eng_alphabet_chars(const char *string);
+bool is_command(const char *string);
+bool is_true_false(const char *string);
 
-int line_load (universe_t *U, line_t *line, char *buffer);
+int line_load(universe_t *U, line_t *line, char *buffer);
+int process_command(line_t *lines, int num_lines, const char *buffer);
 
 int run(FILE *fp);
 
@@ -353,19 +354,19 @@ void set_print(set_t *S) {
     printf("\n");
 }
 
-int set_load (universe_t *U, set_t *S, char *buffer) {
-    char **elements = NULL;
-    int num_elements = 0;
-    split_string(&elements, buffer, &num_elements);
+int set_load (universe_t *U, set_t *S, const char *buffer) {
+    char **words = NULL;
+    int num_words = 0;
+    split_string(&words, buffer, &num_words);
 
-    if (num_elements == -1) {
+    if (num_words == -1) {
         fprintf(stderr, "[ERROR] Invalid definition of set\n");
         return 0;
     }
 
     // load every word to set
-    for (int i = 1; i < num_elements; i++) {
-        if (!set_add_item (U, S, elements[i])) {
+    for (int i = 1; i < num_words; i++) {
+        if (!set_add_item (U, S, words[i])) {
             return 1;
         }
     }
@@ -373,11 +374,23 @@ int set_load (universe_t *U, set_t *S, char *buffer) {
 }
 
 int rel_load (universe_t *U, rel_t *rel, char *buffer) {
+    char **words = NULL;
+    int num_words = 0;
+    split_string(&words, buffer, &num_words);
+    if (num_words == -1) {
+        fprintf(stderr, "[ERROR] Invalid definition of a relation\n");
+        return 0;
+    }
+    
+    for (int i = 0; i < num_words; i++) {
+        printf("%s ", words[i]);   
+    }
+    printf("\n");
     (void)U;
     (void)rel;
     (void)buffer;
 
-    return 0;
+    return 1;
 }
 
 int line_load (universe_t *U, line_t *line, char *buffer) {
@@ -388,53 +401,78 @@ int line_load (universe_t *U, line_t *line, char *buffer) {
         // if loading realtion was successful
         if(!rel_load(U,&rel, buffer)) { 
             fprintf(stderr, "[ERROR] Failed to load relation.\n");
-            return 1;
+            return 0;
         }
         line->set = NULL;
 
-        return 0;
+        return 1;
     }
 
     // if loading set was successful
     if (set_load(U, set, buffer)) {
         fprintf(stderr, "[ERROR] Failed to load set.\n");
-        return 1;
+        return 0;
     }
     line->set = set;
     line->rel = NULL;
     set_print(set);
 
     // if everything went well, return 0
+    return 1;
+}
+
+// returns 1 if processing command was successful
+int process_command(line_t *lines, int num_lines, const char* buffer) {
+    (void) lines;
+    (void) num_lines;
+    (void) buffer;
+
+    // TODO
     return 0;
 }
 
 // main program, returns 1 when an error occurs
 int run(FILE *fp) {
-    line_t lines[MAX_LINES];
+    line_t *lines = malloc(5 * sizeof(line_t));
 
     int line_count = 0;
     char buffer[BUFFER_LEN];
     universe_t U;
-    bool ready_com = 0;
+    bool ready_for_command = false;
     while (fgets(buffer, BUFFER_LEN, fp)) { // ked sme na zaciatku, tak nacitame universe, riadok = 0
+        // allocate space for another line
         if (line_count == 0) {
-            printf("Line: %d - %s\n", ++line_count, buffer);
             if (!universe_load(&U, buffer)) {
                 universe_free(&U);
                 return 1;
             }
             universe_print(&U);
         }
-        if ((buffer[0] == 'R' || buffer[0] == 'S') && !ready_com) {
-            if (buffer[1] != ' ') {
+        if ((buffer[0] == 'R' || buffer[0] == 'S')) {
+            //lines = (line_t *) realloc(lines, line_count * sizeof(line_t));
+            // relations and sets must be defined before reading commands
+            if (ready_for_command) {
+                return 1;
+            }
+
+            // if buffer on index 1 exists and it is not space
+            if (buffer[1] && buffer[1] != ' ') {
                 fprintf(stderr, "[ERROR] Invalid input.\n");
                 return 1;
             }
             if (!line_load(&U, &lines[line_count], buffer)) {
                 return 1;
             }
-            ++line_count;
         }
+        // if line starts with 'C', we're ready for reading commands
+        if (buffer[0] == 'C') {
+            // if buffer on index 1 exists and it is not space 
+            if (buffer[1] && buffer[1] != ' ') {
+                ready_for_command = true;
+                process_command(lines, line_count, buffer);
+            }
+        }
+        ++line_count;
     }
     return 0;
 }
