@@ -231,6 +231,7 @@ bool universe_valid_item (const char *string) {
 }
 
 void universe_print(universe_t *U) {
+    printf("U: ");
     for (size_t i = 0; i < U->num_items; i++) {
         printf("%s ", U->items[i]);
     }
@@ -344,9 +345,10 @@ int set_add_item (universe_t *U, set_t *S, const char* item) {
     return 1;
 }
 
-void set_print (set_t *S) {
+void set_print(set_t *S) {
+    printf("S: ");
     for (size_t i = 0; i < S->num_items; i++) {
-        printf ("%s ", S->items[i]);
+        printf("%s ", S->items[i]);
     }
     printf("\n");
 }
@@ -374,6 +376,7 @@ int rel_load (universe_t *U, rel_t *rel, char *buffer) {
     (void)U;
     (void)rel;
     (void)buffer;
+
     return 0;
 }
 
@@ -383,8 +386,8 @@ int line_load (universe_t *U, line_t *line, char *buffer) {
     if (buffer[0] == 'R') {
         rel_t rel;
         // if loading realtion was successful
-        if(!rel_load (U,&rel, buffer)) { 
-            fprintf (stderr, "[ERROR] Failed to load relation.\n");
+        if(!rel_load(U,&rel, buffer)) { 
+            fprintf(stderr, "[ERROR] Failed to load relation.\n");
             return 1;
         }
         line->set = NULL;
@@ -394,12 +397,12 @@ int line_load (universe_t *U, line_t *line, char *buffer) {
 
     // if loading set was successful
     if (set_load(U, set, buffer)) {
-        fprintf (stderr, "[ERROR] Failed to load set.\n");
+        fprintf(stderr, "[ERROR] Failed to load set.\n");
         return 1;
     }
     line->set = set;
     line->rel = NULL;
-    set_print (set);
+    set_print(set);
 
     // if everything went well, return 0
     return 0;
@@ -432,9 +435,6 @@ int run(FILE *fp) {
             }
             ++line_count;
         }
-
-        char *element = strtok(buffer, " ");
-        (void)element; // TODO
     }
     return 0;
 }
