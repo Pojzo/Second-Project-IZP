@@ -22,6 +22,14 @@ const char *rel_commands[] = {"reflexive", "symmetric", "antisymmetric",
                                    "transitive", "function", "domain", "codomain", 
                                    "injective", "surjective", "bijective"};
 
+/*
+// commands that require two inputs
+const char *len_two_commands[] = {"empty", "card", "complement", "reflexive", "symmetric", "antisymmetric", "function", "domain", "codomain"};
+
+// commands that require three inputs
+const char* len_three_commands[] = {"union", "intersect", "minus", "subseteq", "subset", "equals"};
+*/
+
 
 typedef struct Universe {
     char **items;
@@ -84,8 +92,8 @@ bool is_true_false(const char *string);
 
 int line_load(universe_t *U, line_t *line, char *buffer);
 int process_command(line_t *lines, int num_lines, const char *buffer);
-int process_set_comm(line_t *lines, int num_words, char **words, int num_lines);
-int process_rel_comm(line_t *lines, int num_words, char **words, int num_lines);
+int process_set_command(line_t *lines, int num_words, char **words, int num_lines);
+int process_rel_command(line_t *lines, int num_words, char **words, int num_lines);
 
 int run(FILE *fp);
 
@@ -418,7 +426,8 @@ int rel_load (universe_t *U, rel_t *rel, char *buffer) {
     char **words = NULL;
     int num_words = 0;
     split_string(&words, buffer, &num_words);
-    if (num_words == -1) {
+    // if input to split_string() is invalid or there is only one word, input is invalid
+    if (num_words == -1 || num_words == 1) {
         fprintf(stderr, "[ERROR] Invalid definition of a relation\n");
         return 0;
     }
@@ -548,42 +557,78 @@ int process_command(line_t *lines, int num_lines, const char* buffer) {
 
     split_string(&words, buffer, &num_words);
 
-    if (num_words == -1) {
+    if (num_words == -1 || num_words == 1) {
         fprintf(stderr,"[ERROR] invalid definition of command\n");
         return 0;
     }
 
     if (is_set_command(words[1])) {
-        if (!process_set_comm(lines, num_words, words, num_lines)) {
-            fprintf(stderr, "[ERROR] Invalid definition of command");
+        if (!process_set_command(lines, num_words, words, num_lines)) {
+            fprintf(stderr, "[ERROR] Invalid definition of command\n");
             return 0;
         }
     }
     else if (is_set_command(words[1])) {
-        if (!process_rel_comm(lines, num_words, words, num_lines)) {
-            fprintf(stderr, "[ERROR] Invalid definition of command");
+        if (!process_rel_command(lines, num_words, words, num_lines)) {
+            fprintf(stderr, "[ERROR] Invalid definition of command\n");
             return 0;
         }
     }
     else {
-        fprintf(stderr, "[ERROR] Invalid definition of command");
+        fprintf(stderr, "[ERROR] Invalid definition of command\n");
         return 0;
     }
 
     return 1;
 }
 
-int process_set_comm(line_t *lines, int num_words, char **words, int num_lines) {
+int process_set_command(line_t *lines, int num_words, char **words, int num_lines) {
     (void) lines;
     (void) num_words;
     (void) words;
     (void) num_lines;
+    // if number of words is 2, there are only three possible funcdtions
+    if (num_words == 2) {
+        // current command 
+        const char* command = words[1];
+        if (strcmp(command, "empty") == 0) {
+            // empty(); // TODO
+        }
+        else if (strcmp(command, "card") == 0) {
+            // card(); // TODO
+        }
+        else if (strcmp(command, "complement") == 0) {       
+            // antisymmetric(); // TODO
+        }
+    }
+    // if number of words is 3, there are 6 possible functions
+    else if (num_words == 3) {
+        const char* command = words[1];
+        if (strcmp(command, "union") == 0) {
+            // union(); // TODO
+        }
+        if (strcmp(command, "intersect") == 0) {
+            // intersect(); // TODO
+        }
+        if (strcmp(command, "minus") == 0) {
+            // minus(); // TODO
+        }
+        if (strcmp(command, "subseteq") == 0) {
+            // subseteq(); // TODO
+        }
+        if (strcmp(command, "subset") == 0) {
+            // subset(); // TODO
+        }
+        if (strcmp(command, "equals") == 0) {
+            // equals(); // TODO
+        }
+    }
     
     return 1;
 }
 
 
-int process_rel_comm(line_t *lines, int num_words, char **words, int num_lines) {
+int process_rel_command(line_t *lines, int num_words, char **words, int num_lines) {
     (void) lines;
     (void) num_words;
     (void) words;
@@ -627,8 +672,9 @@ int run(FILE *fp) {
         }
         // if line starts with 'C', we're ready for reading commands
         if (buffer[0] == 'C') {
+            printf("som tu\n");
             // if buffer on index 1 exists and it is not space 
-            if (buffer[1] && buffer[1] != ' ') {
+            if (buffer[1] && buffer[1] == ' ') {
                 command_only = true;
                 if (!process_command(lines, line_count, buffer)) {
                     return 1;
