@@ -96,6 +96,29 @@ int process_set_command(line_t *lines, int num_words, char **words, int num_line
 int process_rel_command(line_t *lines, int num_words, char **words, int num_lines);
 
 // prototypes for functions over sets and relations
+// sets
+int empty(set_t *set);
+int card(set_t *set);
+int complement(set_t *set);
+int union_function(set_t *first, set_t *second);
+int intersect(set_t * first, set_t *second);
+int minus(set_t * first, set_t *second);
+int subseteq(set_t * first, set_t *second);
+int subset(set_t * first, set_t *second);
+int equals(set_t * first, set_t *second);
+
+// relations
+int reflexive(rel_t *rel);
+int symmetric(rel_t *rel);
+int antisymmetric(rel_t *rel);
+int transitive(rel_t *rel);
+int function(rel_t *rel);
+int domain(rel_t *rel);
+int codomain(rel_t *rel);
+int injective(rel_t* rel, set_t* first, set_t *second);
+int surjective(rel_t * rel, set_t *first, set_t *second);
+int bijective(rel_t * rel, set_t *first, set_t *second);
+
 
 int run(FILE *fp);
 
@@ -607,7 +630,7 @@ int process_set_command(line_t *lines, int num_words, char **words, int num_line
     else if (num_words == 4) {
         const char* command = words[1];
         if (strcmp(command, "union") == 0) {
-            // union(); // TODO
+            // union_function(); // TODO
         }
         if (strcmp(command, "intersect") == 0) {
             // intersect(); // TODO
@@ -723,4 +746,64 @@ int run(FILE *fp) {
         ++line_count;
     }
     return 0;
+}
+
+int empty(set_t *set){
+	return 1;
+}
+int card(set_t *set){
+	return 1;
+}
+int complement(set_t *set){
+	return 1;
+}
+int union_function(set_t *first, set_t *second){
+	return 1;
+}
+int intersect(set_t * first, set_t *second){
+	return 1;
+}
+int minus(set_t * first, set_t *second){
+	return 1;
+}
+int subseteq(set_t * first, set_t *second){
+	return 1;
+}
+int subset(set_t * first, set_t *second){
+	return 1;
+}
+int equals(set_t * first, set_t *second){
+	return 1;
+}
+
+// relations
+int reflexive(rel_t *rel){
+	return 1;
+}
+int symmetric(rel_t *rel){
+	return 1;
+}
+int antisymmetric(rel_t *rel){
+	return 1;
+}
+int transitive(rel_t *rel){
+	return 1;
+}
+int function(rel_t *rel){
+	return 1;
+}
+int domain(rel_t *rel){
+	return 1;
+}
+int codomain(rel_t *rel){
+	return 1;
+}
+int injective(rel_t* rel, set_t* first, set_t *second){
+	return 1;
+}
+int surjective(rel_t * rel, set_t *first, set_t *second){
+	return 1;
+}
+int bijective(rel_t * rel, set_t *first, set_t *second){
+	return 1;
 }
