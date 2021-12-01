@@ -95,6 +95,8 @@ int process_command(line_t *lines, int num_lines, const char *buffer);
 int process_set_command(line_t *lines, int num_words, char **words, int num_lines);
 int process_rel_command(line_t *lines, int num_words, char **words, int num_lines);
 
+// prototypes for functions over sets and relations
+
 int run(FILE *fp);
 
 int main (int argc, char **argv) {
@@ -550,7 +552,7 @@ int process_command(line_t *lines, int num_lines, const char* buffer) {
     char **words = NULL;
     int num_words;
 
-    if (buffer[1] != ' ') {
+    if (buffer[1] && buffer[1] != ' ') {
         fprintf(stderr, "[ERROR] Invalid definition of command.\n");
         return 0;
     }
@@ -587,8 +589,8 @@ int process_set_command(line_t *lines, int num_words, char **words, int num_line
     (void) num_words;
     (void) words;
     (void) num_lines;
-    // if number of words is 2, there are only three possible funcdtions
-    if (num_words == 2) {
+    // if number of words is 3, there are only three possible funcdtions
+    if (num_words == 3) {
         // current command 
         const char* command = words[1];
         if (strcmp(command, "empty") == 0) {
@@ -601,8 +603,8 @@ int process_set_command(line_t *lines, int num_words, char **words, int num_line
             // antisymmetric(); // TODO
         }
     }
-    // if number of words is 3, there are 6 possible functions
-    else if (num_words == 3) {
+    // if number of words is 4, there are 6 possible functions
+    else if (num_words == 4) {
         const char* command = words[1];
         if (strcmp(command, "union") == 0) {
             // union(); // TODO
@@ -623,16 +625,49 @@ int process_set_command(line_t *lines, int num_words, char **words, int num_line
             // equals(); // TODO
         }
     }
-    
     return 1;
 }
 
 
 int process_rel_command(line_t *lines, int num_words, char **words, int num_lines) {
     (void) lines;
-    (void) num_words;
-    (void) words;
     (void) num_lines;
+    if (num_words == 3) {
+        const char *command = words[1];
+        if (strcmp(command, "reflexive")) {
+            // return reflexive();
+        }
+        else if (strcmp(command, "symmetric")) {
+            // return symmetric();
+        }
+        else if (strcmp(command, "antisymmetric")) {
+            // return antisymmetric();
+        }
+        else if (strcmp(command, "transitive")) {
+            // return transitive();
+        }
+        else if (strcmp(command, "function")) {
+            // return function();
+        }
+        else if (strcmp(command, "domain")) {
+            // return function();
+        }
+        else if (strcmp(command, "codomain")) {
+            // return codomain();
+        }
+    }
+    else if (num_words == 5) {
+        const char *command = words[1];
+        if (strcmp(command, "injective")) {
+            // return injective();
+        }
+        if (strcmp(command, "surjective")) {
+            // return surjective();
+        }
+        if (strcmp(command, "bijective")) {
+            // return bijective();
+        }
+    }
     
     return 1;
 }
