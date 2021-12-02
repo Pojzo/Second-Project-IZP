@@ -1,17 +1,8 @@
-U dad mom girl boy man woman
+U a b c x y z
+S a b x
 S
-S dad mom girl boy man woman
-R (dad boy) (dad girl) (mom boy) (mom girl)
-R (dad man) (boy man) (mom woman) (girl woman)
-R (boy man) (boy woman)
+S z y b a
 C empty 2
-C card 3
-C complement 2
-C complement 3
-C function 4
-C function 5
-C domain 4
-C domain 5
-C codomain 4
-C codomain 5
-C function 6
+C empty 4
+C empty 3
+C empty 1

@@ -630,8 +630,14 @@ int process_set_command(universe_t *U, line_t lines[MAX_LINES], int num_words, c
         // current command 
         const char* command = words[1];
         int line = atoi(words[2]);
+        if (line == 1) {
+            printf("false\n");
+            return 1;
+        }
         line -= 2;
         // if num lines is negative or greater than number of lines stored
+        //
+        // if its first line - universum, its never empty
         if (line < 0 || line > num_lines - 1) {
             return 0;
         }
