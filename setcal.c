@@ -90,11 +90,12 @@ bool is_set_command(const char *string);
 bool is_rel_command(const char *string);
 bool is_true_false(const char *string);
 
-int line_load(universe_t *U, line_t *line, char *buffer);
-int process_command(line_t *lines, int num_lines, const char *buffer);
-int process_set_command(line_t *lines, int num_words, char **words, int num_lines);
-int process_rel_command(line_t *lines, int num_words, char **words, int num_lines);
+line_t *line_load(universe_t *U, char *buffer);
+int process_command(line_t **lines, int num_lines, const char *buffer);
+int process_set_command(line_t **lines, int num_words, char **words, int num_lines);
+int process_rel_command(line_t **lines, int num_words, char **words, int num_lines);
 
+void print_lines(line_t **lines, int line_count);
 // prototypes for functions over sets and relations
 // sets
 void empty(set_t *set);
@@ -123,17 +124,6 @@ int bijective(rel_t * rel, set_t *first, set_t *second);
 int run(FILE *fp);
 
 int main (int argc, char **argv) {
-
-
-    for (int i = 0; i < NUM_SET_COMMANDS; i++) {
-        printf("%s\n", is_set_command(set_commands[i]) ? "True" : "False");
-    }
-
-    for (int i = 0; i < NUM_REL_COMMANDS; i++) {
-        printf("%s\n", is_rel_command(rel_commands[i]) ? "True" : "False");
-    }
-
-    return 0;
     if (!enough_arguments(argc)) { // if there aren't enough arguments, terminate program
         return 1;
     }
@@ -322,7 +312,7 @@ bool is_command (const char *string) {
 // returns true if given string matches with a set command
 bool is_set_command (const char *string) {
     int string_len = strlen(string);
-    char lower[string_len];
+    char *lower = (char *) malloc(string_len);
     for (int i = 0; i < string_len; i++) {
         lower[i] = tolower(string[i]);
     }
@@ -333,14 +323,13 @@ bool is_set_command (const char *string) {
         }
     }
     
-    printf("Totok sa nerovna %s %s\n", string, lower);
     return false;
 }
 
 // returns true if given string matches with a relation command
 bool is_rel_command (const char *string) {
     int string_len = strlen(string);
-    char lower[string_len];
+    char *lower = (char *) malloc(string_len);
 
     for (int i = 0; i < string_len; i++) {
         lower[i] = tolower(string[i]);
@@ -547,56 +536,63 @@ void rel_print(rel_t *rel) {
 }
 
 
-int line_load(universe_t *U, line_t *line, char *buffer) {
+line_t *line_load(universe_t *U, char *buffer) {
+    line_t *line = (line_t *) malloc(sizeof(line_t));
     // if line starts with R
     if (buffer[0] == 'R') {
         rel_t *rel = rel_ctor();
         // if loading realtion was successful
         if(!rel_load(U, rel, buffer)) { 
             fprintf(stderr, "[ERROR] Failed to load relation.\n");
-            return 0;
+            return NULL;
         }
         rel_print(rel);
         line->set = NULL;
         line->rel = rel;
 
-        return 1;
+        return line;
     }
 
+    printf("%d\n", __LINE__);
     // if loading set was successful
     set_t* set = set_ctor();
     if (set_load(U, set, buffer)) {
         fprintf(stderr, "[ERROR] Failed to load set.\n");
-        return 0;
+        return NULL;
     }
     line->set = set;
     line->rel = NULL;
     set_print(set);
 
     // if everything went well, return 1
-    return 1;
+    return line;
 }
 
 // returns 1 if processing command was successful
-int process_command(line_t *lines, int num_lines, const char* buffer) {
+int process_command(line_t **lines, int num_lines, const char* buffer) {
+    printf("%d\n", __LINE__);
 
     char **words = NULL;
     int num_words;
 
+    printf("%d\n", __LINE__);
     if (buffer[1] && buffer[1] != ' ') {
         printf("%d\n", __LINE__);
         fprintf(stderr, "[ERROR] Invalid definition of command.\n");
         return 0;
     }
 
+    printf("%d\n", __LINE__);
     split_string(&words, buffer, &num_words);
 
+    printf("%d\n", __LINE__);
     if (num_words == -1 || num_words == 1) {
         printf("%d\n", __LINE__);
         fprintf(stderr,"[ERROR] invalid definition of command\n");
         return 0;
     }
 
+    printf("%d\n", __LINE__);
     if (is_set_command(words[1])) {
         if (!process_set_command(lines, num_words, words, num_lines)) {
         printf("%d\n", __LINE__);
@@ -605,6 +601,7 @@ int process_command(line_t *lines, int num_lines, const char* buffer) {
         }
     }
     else if (is_rel_command(words[1])) {
+    printf("%d\n", __LINE__);
         if (!process_rel_command(lines, num_words, words, num_lines)) {
         printf("%d\n", __LINE__);
             fprintf(stderr, "[ERROR] Invalid definition of command\n");
@@ -612,26 +609,30 @@ int process_command(line_t *lines, int num_lines, const char* buffer) {
         }
     }
     else {
+    printf("%d\n", __LINE__);
         printf("%d\n", __LINE__);
         fprintf(stderr, "[ERROR] Invalid definition of command\n");
         return 0;
     }
 
+    printf("%d\n", __LINE__);
     return 1;
 }
 
-int process_set_command(line_t *lines, int num_words, char **words, int num_lines) {
+int process_set_command(line_t **lines, int num_words, char **words, int num_lines) {
     // if number of words is 3, there are only three possible funcdtions
     if (num_words == 3) {
         // current command 
         const char* command = words[1];
-        int line = atoi(words[1]);
+        int line = atoi(words[2]);
         line -= 2;
         // if num lines is negative or greater than number of lines stored
-        if (line <= 0 || line > num_lines - 1) {
+        if (line < 0 || line > num_lines - 1) {
             return 0;
         }
-        set_t *set = lines[line].set;
+        printf("%d\n", line);
+        set_t *set = lines[line]->set;
+        printf("%d\n", line);
         // if no set was defined on the line, return 0
         if (set == NULL) {
             return 0; 
@@ -674,7 +675,7 @@ int process_set_command(line_t *lines, int num_words, char **words, int num_line
 }
 
 
-int process_rel_command(line_t *lines, int num_words, char **words, int num_lines) {
+int process_rel_command(line_t **lines, int num_words, char **words, int num_lines) {
     (void) lines;
     (void) num_lines;
     if (num_words == 3) {
@@ -719,8 +720,7 @@ int process_rel_command(line_t *lines, int num_words, char **words, int num_line
 
 // main program, returns 1 when an error occurs
 int run(FILE *fp) {
-    line_t *lines = malloc(sizeof(line_t));
-
+    line_t **lines = (line_t **) malloc(sizeof(line_t*));
     int line_count = 0;
     char buffer[BUFFER_LEN];
     universe_t U;
@@ -735,7 +735,7 @@ int run(FILE *fp) {
             universe_print(&U);
         }
         if ((buffer[0] == 'R' || buffer[0] == 'S')) {
-            lines = (line_t *) realloc(lines, (line_count + 1) * sizeof(line_t));
+            lines = (line_t **) realloc(lines, (line_count + 1) * sizeof(line_t *));
             // relations and sets must be defined before reading commands
             if (command_only) {
                 return 1;
@@ -746,12 +746,18 @@ int run(FILE *fp) {
                 fprintf(stderr, "[ERROR] Invalid input.\n");
                 return 1;
             }
-            if (!line_load(&U, &lines[line_count], buffer)) {
+            line_t *new_line = NULL;
+            new_line = line_load(&U, buffer);
+            if (new_line == NULL) {
                 return 1;
+            }
+            else{
+                lines[line_count] = new_line;
             }
         }
         // if line starts with 'C', we're ready for reading commands
         if (buffer[0] == 'C') {
+            print_lines(lines, line_count);
             // if buffer on index 1 exists and it is not space 
             if (buffer[1] && buffer[1] == ' ') {
                 command_only = true;
@@ -858,4 +864,21 @@ int bijective(rel_t * rel, set_t *first, set_t *second){
     (void) first;
     (void) second;
 	return 1;
+}
+
+void print_lines(line_t **lines, int num_lines) {
+    for (int i = 0; i < num_lines; i++) {
+        if (lines[i] == NULL) {
+            printf("set: NULL");
+        }
+        else {
+            printf("set: NOT NULL");
+        }
+        if (lines[i] == NULL) {
+            printf("rel: NULL");
+        }
+        else {
+            printf("rel: NOT NULL");
+        }
+    }
 }
