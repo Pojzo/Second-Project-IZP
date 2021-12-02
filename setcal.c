@@ -97,7 +97,7 @@ int process_rel_command(line_t *lines, int num_words, char **words, int num_line
 
 // prototypes for functions over sets and relations
 // sets
-int empty(set_t *set);
+void empty(set_t *set);
 int card(set_t *set);
 int complement(set_t *set);
 int union_function(set_t *first, set_t *second);
@@ -124,6 +124,16 @@ int run(FILE *fp);
 
 int main (int argc, char **argv) {
 
+
+    for (int i = 0; i < NUM_SET_COMMANDS; i++) {
+        printf("%s\n", is_set_command(set_commands[i]) ? "True" : "False");
+    }
+
+    for (int i = 0; i < NUM_REL_COMMANDS; i++) {
+        printf("%s\n", is_rel_command(rel_commands[i]) ? "True" : "False");
+    }
+
+    return 0;
     if (!enough_arguments(argc)) { // if there aren't enough arguments, terminate program
         return 1;
     }
@@ -311,11 +321,9 @@ bool is_command (const char *string) {
 
 // returns true if given string matches with a set command
 bool is_set_command (const char *string) {
-
     int string_len = strlen(string);
     char lower[string_len];
     for (int i = 0; i < string_len; i++) {
-
         lower[i] = tolower(string[i]);
     }
 
@@ -325,12 +333,12 @@ bool is_set_command (const char *string) {
         }
     }
     
+    printf("Totok sa nerovna %s %s\n", string, lower);
     return false;
 }
 
 // returns true if given string matches with a relation command
 bool is_rel_command (const char *string) {
-
     int string_len = strlen(string);
     char lower[string_len];
 
@@ -576,6 +584,7 @@ int process_command(line_t *lines, int num_lines, const char* buffer) {
     int num_words;
 
     if (buffer[1] && buffer[1] != ' ') {
+        printf("%d\n", __LINE__);
         fprintf(stderr, "[ERROR] Invalid definition of command.\n");
         return 0;
     }
@@ -583,23 +592,27 @@ int process_command(line_t *lines, int num_lines, const char* buffer) {
     split_string(&words, buffer, &num_words);
 
     if (num_words == -1 || num_words == 1) {
+        printf("%d\n", __LINE__);
         fprintf(stderr,"[ERROR] invalid definition of command\n");
         return 0;
     }
 
     if (is_set_command(words[1])) {
         if (!process_set_command(lines, num_words, words, num_lines)) {
+        printf("%d\n", __LINE__);
             fprintf(stderr, "[ERROR] Invalid definition of command\n");
             return 0;
         }
     }
-    else if (is_set_command(words[1])) {
+    else if (is_rel_command(words[1])) {
         if (!process_rel_command(lines, num_words, words, num_lines)) {
+        printf("%d\n", __LINE__);
             fprintf(stderr, "[ERROR] Invalid definition of command\n");
             return 0;
         }
     }
     else {
+        printf("%d\n", __LINE__);
         fprintf(stderr, "[ERROR] Invalid definition of command\n");
         return 0;
     }
@@ -608,16 +621,25 @@ int process_command(line_t *lines, int num_lines, const char* buffer) {
 }
 
 int process_set_command(line_t *lines, int num_words, char **words, int num_lines) {
-    (void) lines;
-    (void) num_words;
-    (void) words;
-    (void) num_lines;
     // if number of words is 3, there are only three possible funcdtions
     if (num_words == 3) {
         // current command 
         const char* command = words[1];
+        int line = atoi(words[1]);
+        line -= 2;
+        // if num lines is negative or greater than number of lines stored
+        if (line <= 0 || line > num_lines - 1) {
+            return 0;
+        }
+        set_t *set = lines[line].set;
+        // if no set was defined on the line, return 0
+        if (set == NULL) {
+            return 0; 
+        }
+        
         if (strcmp(command, "empty") == 0) {
-            // empty(); // TODO
+            empty(set);
+            return 1;
         }
         else if (strcmp(command, "card") == 0) {
             // card(); // TODO
@@ -730,13 +752,11 @@ int run(FILE *fp) {
         }
         // if line starts with 'C', we're ready for reading commands
         if (buffer[0] == 'C') {
-            printf("som tu\n");
             // if buffer on index 1 exists and it is not space 
             if (buffer[1] && buffer[1] == ' ') {
                 command_only = true;
                 if (!process_command(lines, line_count, buffer)) {
                     return 1;
-
                 }
             }
             else {
@@ -748,62 +768,94 @@ int run(FILE *fp) {
     return 0;
 }
 
-int empty(set_t *set){
-	return 1;
+void empty(set_t *set) {
+    if (set->num_items == 0) {
+        printf("true\n");
+    }
 }
 int card(set_t *set){
+    (void) set;
 	return 1;
 }
 int complement(set_t *set){
+    (void) set;
 	return 1;
 }
 int union_function(set_t *first, set_t *second){
+    (void) first;
+    (void) second;
 	return 1;
 }
 int intersect(set_t * first, set_t *second){
+    (void) first;
+    (void) second;
 	return 1;
 }
 int minus(set_t * first, set_t *second){
+    (void) first;
+    (void) second;
 	return 1;
 }
 int subseteq(set_t * first, set_t *second){
+    (void) first;
+    (void) second;
 	return 1;
 }
 int subset(set_t * first, set_t *second){
+    (void) first;
+    (void) second;
 	return 1;
 }
 int equals(set_t * first, set_t *second){
+    (void) first;
+    (void) second;
 	return 1;
 }
 
 // relations
 int reflexive(rel_t *rel){
+    (void) rel;
 	return 1;
 }
 int symmetric(rel_t *rel){
+    (void) rel;
 	return 1;
 }
 int antisymmetric(rel_t *rel){
+    (void) rel;
 	return 1;
 }
 int transitive(rel_t *rel){
+    (void) rel;
 	return 1;
 }
 int function(rel_t *rel){
+    (void) rel;
 	return 1;
 }
 int domain(rel_t *rel){
+    (void) rel;
 	return 1;
 }
 int codomain(rel_t *rel){
+    (void) rel;
 	return 1;
 }
 int injective(rel_t* rel, set_t* first, set_t *second){
+    (void) rel;
+    (void) first;
+    (void) second;
 	return 1;
 }
 int surjective(rel_t * rel, set_t *first, set_t *second){
+    (void) rel;
+    (void) first;
+    (void) second;
 	return 1;
 }
 int bijective(rel_t * rel, set_t *first, set_t *second){
+    (void) rel;
+    (void) first;
+    (void) second;
 	return 1;
 }
