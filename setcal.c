@@ -593,7 +593,7 @@ int process_command(line_t *lines, int num_lines, const char* buffer) {
             return 0;
         }
     }
-    else if (is_set_command(words[1])) {
+    else if (is_rel_command(words[1])) {
         if (!process_rel_command(lines, num_words, words, num_lines)) {
             fprintf(stderr, "[ERROR] Invalid definition of command\n");
             return 0;
@@ -616,8 +616,19 @@ int process_set_command(line_t *lines, int num_words, char **words, int num_line
     if (num_words == 3) {
         // current command 
         const char* command = words[1];
+        int line = atoi(words[2]);
+        set_t *set = (lines[line]).set;
+        if (set == NULL) {
+            fprintf(stderr,"[ERROR] Invalid definition of command\n");
+            return 0;
+        }
         if (strcmp(command, "empty") == 0) {
-            // empty(); // TODO
+            if(empty(set)) {
+                printf("true\n");
+            }
+            else {
+                printf("false\n");
+            }
         }
         else if (strcmp(command, "card") == 0) {
             // card(); // TODO
@@ -730,17 +741,10 @@ int run(FILE *fp) {
         }
         // if line starts with 'C', we're ready for reading commands
         if (buffer[0] == 'C') {
-            printf("som tu\n");
             // if buffer on index 1 exists and it is not space 
-            if (buffer[1] && buffer[1] == ' ') {
                 command_only = true;
-                if (!process_command(lines, line_count, buffer)) {
-                    return 1;
-
-                }
-            }
-            else {
-                
+            if (!process_command(lines, line_count, buffer)) {
+                return 1;
             }
         }
         ++line_count;
@@ -749,8 +753,12 @@ int run(FILE *fp) {
 }
 
 int empty(set_t *set){
-	return 1;
+    if(set->num_items == 0) {
+        return 1;
+    }
+    return 0;
 }
+/*
 int card(set_t *set){
 	return 1;
 }
@@ -807,3 +815,4 @@ int surjective(rel_t * rel, set_t *first, set_t *second){
 int bijective(rel_t * rel, set_t *first, set_t *second){
 	return 1;
 }
+*/
