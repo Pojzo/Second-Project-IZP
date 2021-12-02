@@ -1,4 +1,4 @@
-CFLAGS=-std=c99 -Wall -Wextra -Werror
+CFLAGS=-std=c99 -Wall -Wextra -Werror -g
 CC=gcc
 
 setcal: setcal.c

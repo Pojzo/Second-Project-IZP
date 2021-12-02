@@ -1,5 +1,7 @@
 U dad mom girl boy man woman
+S
 S dad boy
 R (dad boy) (dad girl) (mom boy) (mom girl)
 R (dad man) (boy man) (mom woman) (girl woman)
 C empty 2
+C empty 3

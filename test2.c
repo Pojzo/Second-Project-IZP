@@ -1,9 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
+struct Test {
+    int a;
+};
+
+struct Test test() {
+    struct Test test;
+    test.a = 5;
+    return test;
+}
+
+
 int main() {
-    const char *string = "25";
-    int a = atoi(string);
-    printf("%d\n", a);
+    struct Test test = test();
     return 0;
 }
