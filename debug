@@ -1,0 +1,459 @@
+==18270== Memcheck, a memory error detector
+==18270== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==18270== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==18270== Command: ./setcal sets
+==18270== Parent PID: 2784
+==18270== 
+==18270== Invalid write of size 1
+==18270==    at 0x484676E: strcpy (vg_replace_strmem.c:553)
+==18270==    by 0x401802: universe_add_item (setcal.c:268)
+==18270==    by 0x4015C8: universe_load (setcal.c:222)
+==18270==    by 0x402B77: run (setcal.c:770)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a35f13 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x4017D3: universe_add_item (setcal.c:267)
+==18270==    by 0x4015C8: universe_load (setcal.c:222)
+==18270==    by 0x402B77: run (setcal.c:770)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== Invalid read of size 1
+==18270==    at 0x48474C8: strcmp (vg_replace_strmem.c:924)
+==18270==    by 0x401D4C: find_string (setcal.c:402)
+==18270==    by 0x4021CB: rel_add_pair (setcal.c:519)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a35f13 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x4017D3: universe_add_item (setcal.c:267)
+==18270==    by 0x4015C8: universe_load (setcal.c:222)
+==18270==    by 0x402B77: run (setcal.c:770)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== Invalid read of size 1
+==18270==    at 0x48474D0: strcmp (vg_replace_strmem.c:924)
+==18270==    by 0x401D4C: find_string (setcal.c:402)
+==18270==    by 0x4021CB: rel_add_pair (setcal.c:519)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a37113 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x402143: rel_add_pair (setcal.c:511)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== Invalid read of size 1
+==18270==    at 0x48474C8: strcmp (vg_replace_strmem.c:924)
+==18270==    by 0x401D4C: find_string (setcal.c:402)
+==18270==    by 0x4021ED: rel_add_pair (setcal.c:522)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a362f3 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x4017D3: universe_add_item (setcal.c:267)
+==18270==    by 0x4015C8: universe_load (setcal.c:222)
+==18270==    by 0x402B77: run (setcal.c:770)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== Invalid read of size 1
+==18270==    at 0x48474D0: strcmp (vg_replace_strmem.c:924)
+==18270==    by 0x401D4C: find_string (setcal.c:402)
+==18270==    by 0x4021ED: rel_add_pair (setcal.c:522)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a37163 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x402186: rel_add_pair (setcal.c:515)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== Invalid read of size 1
+==18270==    at 0x4846604: strlen (vg_replace_strmem.c:494)
+==18270==    by 0x4022C5: rel_add_pair (setcal.c:542)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a35f13 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x4017D3: universe_add_item (setcal.c:267)
+==18270==    by 0x4015C8: universe_load (setcal.c:222)
+==18270==    by 0x402B77: run (setcal.c:770)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== Invalid read of size 1
+==18270==    at 0x4846604: strlen (vg_replace_strmem.c:494)
+==18270==    by 0x4022F5: rel_add_pair (setcal.c:545)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a362f3 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x4017D3: universe_add_item (setcal.c:267)
+==18270==    by 0x4015C8: universe_load (setcal.c:222)
+==18270==    by 0x402B77: run (setcal.c:770)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== Invalid read of size 1
+==18270==    at 0x4846762: strcpy (vg_replace_strmem.c:553)
+==18270==    by 0x402342: rel_add_pair (setcal.c:548)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a35f13 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x4017D3: universe_add_item (setcal.c:267)
+==18270==    by 0x4015C8: universe_load (setcal.c:222)
+==18270==    by 0x402B77: run (setcal.c:770)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== Invalid write of size 1
+==18270==    at 0x484676E: strcpy (vg_replace_strmem.c:553)
+==18270==    by 0x402342: rel_add_pair (setcal.c:548)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a37253 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x4022E6: rel_add_pair (setcal.c:542)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== Invalid read of size 1
+==18270==    at 0x4846762: strcpy (vg_replace_strmem.c:553)
+==18270==    by 0x40236B: rel_add_pair (setcal.c:551)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a362f3 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x4017D3: universe_add_item (setcal.c:267)
+==18270==    by 0x4015C8: universe_load (setcal.c:222)
+==18270==    by 0x402B77: run (setcal.c:770)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== Invalid write of size 1
+==18270==    at 0x484676E: strcpy (vg_replace_strmem.c:553)
+==18270==    by 0x40236B: rel_add_pair (setcal.c:551)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a372a3 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x402316: rel_add_pair (setcal.c:545)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== Invalid read of size 1
+==18270==    at 0x48474C8: strcmp (vg_replace_strmem.c:924)
+==18270==    by 0x401BAD: is_rel_command (setcal.c:364)
+==18270==    by 0x402633: process_command (setcal.c:625)
+==18270==    by 0x402D33: run (setcal.c:816)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a38f18 is 0 bytes after a block of size 8 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x401B44: is_rel_command (setcal.c:357)
+==18270==    by 0x402633: process_command (setcal.c:625)
+==18270==    by 0x402D33: run (setcal.c:816)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== Invalid read of size 1
+==18270==    at 0x4846604: strlen (vg_replace_strmem.c:494)
+==18270==    by 0x48CFB97: __vfprintf_internal (in /usr/lib64/libc-2.33.so)
+==18270==    by 0x48BAB7E: printf (in /usr/lib64/libc-2.33.so)
+==18270==    by 0x4031BC: codomain (setcal.c:915)
+==18270==    by 0x402A0E: process_rel_command (setcal.c:739)
+==18270==    by 0x402654: process_command (setcal.c:626)
+==18270==    by 0x402D33: run (setcal.c:816)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a372a3 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x402316: rel_add_pair (setcal.c:545)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== Invalid read of size 1
+==18270==    at 0x48A3BF0: ____strtol_l_internal (in /usr/lib64/libc-2.33.so)
+==18270==    by 0x48A0493: atoi (in /usr/lib64/libc-2.33.so)
+==18270==    by 0x4028B8: process_rel_command (setcal.c:707)
+==18270==    by 0x402654: process_command (setcal.c:626)
+==18270==    by 0x402D33: run (setcal.c:816)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a39200 is 0 bytes after a block of size 0 alloc'd
+==18270==    at 0x4845464: calloc (vg_replace_malloc.c:1328)
+==18270==    by 0x40148D: split_string (setcal.c:192)
+==18270==    by 0x402584: process_command (setcal.c:612)
+==18270==    by 0x402D33: run (setcal.c:816)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== 
+==18270== HEAP SUMMARY:
+==18270==     in use at exit: 4,845 bytes in 104 blocks
+==18270==   total heap usage: 145 allocs, 41 frees, 11,005 bytes allocated
+==18270== 
+==18270== LEAK SUMMARY:
+==18270==    definitely lost: 457 bytes in 40 blocks
+==18270==    indirectly lost: 3,916 bytes in 63 blocks
+==18270==      possibly lost: 0 bytes in 0 blocks
+==18270==    still reachable: 472 bytes in 1 blocks
+==18270==         suppressed: 0 bytes in 0 blocks
+==18270== Rerun with --leak-check=full to see details of leaked memory
+==18270== 
+==18270== ERROR SUMMARY: 93 errors from 14 contexts (suppressed: 0 from 0)
+==18270== 
+==18270== 1 errors in context 1 of 14:
+==18270== Invalid read of size 1
+==18270==    at 0x48A3BF0: ____strtol_l_internal (in /usr/lib64/libc-2.33.so)
+==18270==    by 0x48A0493: atoi (in /usr/lib64/libc-2.33.so)
+==18270==    by 0x4028B8: process_rel_command (setcal.c:707)
+==18270==    by 0x402654: process_command (setcal.c:626)
+==18270==    by 0x402D33: run (setcal.c:816)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a39200 is 0 bytes after a block of size 0 alloc'd
+==18270==    at 0x4845464: calloc (vg_replace_malloc.c:1328)
+==18270==    by 0x40148D: split_string (setcal.c:192)
+==18270==    by 0x402584: process_command (setcal.c:612)
+==18270==    by 0x402D33: run (setcal.c:816)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== 
+==18270== 2 errors in context 2 of 14:
+==18270== Invalid read of size 1
+==18270==    at 0x48474C8: strcmp (vg_replace_strmem.c:924)
+==18270==    by 0x401BAD: is_rel_command (setcal.c:364)
+==18270==    by 0x402633: process_command (setcal.c:625)
+==18270==    by 0x402D33: run (setcal.c:816)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a38f18 is 0 bytes after a block of size 8 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x401B44: is_rel_command (setcal.c:357)
+==18270==    by 0x402633: process_command (setcal.c:625)
+==18270==    by 0x402D33: run (setcal.c:816)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== 
+==18270== 4 errors in context 3 of 14:
+==18270== Invalid read of size 1
+==18270==    at 0x4846604: strlen (vg_replace_strmem.c:494)
+==18270==    by 0x48CFB97: __vfprintf_internal (in /usr/lib64/libc-2.33.so)
+==18270==    by 0x48BAB7E: printf (in /usr/lib64/libc-2.33.so)
+==18270==    by 0x4031BC: codomain (setcal.c:915)
+==18270==    by 0x402A0E: process_rel_command (setcal.c:739)
+==18270==    by 0x402654: process_command (setcal.c:626)
+==18270==    by 0x402D33: run (setcal.c:816)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a372a3 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x402316: rel_add_pair (setcal.c:545)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== 
+==18270== 6 errors in context 4 of 14:
+==18270== Invalid write of size 1
+==18270==    at 0x484676E: strcpy (vg_replace_strmem.c:553)
+==18270==    by 0x401802: universe_add_item (setcal.c:268)
+==18270==    by 0x4015C8: universe_load (setcal.c:222)
+==18270==    by 0x402B77: run (setcal.c:770)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a35f13 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x4017D3: universe_add_item (setcal.c:267)
+==18270==    by 0x4015C8: universe_load (setcal.c:222)
+==18270==    by 0x402B77: run (setcal.c:770)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== 
+==18270== 8 errors in context 5 of 14:
+==18270== Invalid write of size 1
+==18270==    at 0x484676E: strcpy (vg_replace_strmem.c:553)
+==18270==    by 0x40236B: rel_add_pair (setcal.c:551)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a372a3 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x402316: rel_add_pair (setcal.c:545)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== 
+==18270== 8 errors in context 6 of 14:
+==18270== Invalid read of size 1
+==18270==    at 0x4846762: strcpy (vg_replace_strmem.c:553)
+==18270==    by 0x40236B: rel_add_pair (setcal.c:551)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a362f3 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x4017D3: universe_add_item (setcal.c:267)
+==18270==    by 0x4015C8: universe_load (setcal.c:222)
+==18270==    by 0x402B77: run (setcal.c:770)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== 
+==18270== 8 errors in context 7 of 14:
+==18270== Invalid write of size 1
+==18270==    at 0x484676E: strcpy (vg_replace_strmem.c:553)
+==18270==    by 0x402342: rel_add_pair (setcal.c:548)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a37253 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x4022E6: rel_add_pair (setcal.c:542)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== 
+==18270== 8 errors in context 8 of 14:
+==18270== Invalid read of size 1
+==18270==    at 0x4846762: strcpy (vg_replace_strmem.c:553)
+==18270==    by 0x402342: rel_add_pair (setcal.c:548)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a35f13 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x4017D3: universe_add_item (setcal.c:267)
+==18270==    by 0x4015C8: universe_load (setcal.c:222)
+==18270==    by 0x402B77: run (setcal.c:770)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== 
+==18270== 8 errors in context 9 of 14:
+==18270== Invalid read of size 1
+==18270==    at 0x4846604: strlen (vg_replace_strmem.c:494)
+==18270==    by 0x4022F5: rel_add_pair (setcal.c:545)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a362f3 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x4017D3: universe_add_item (setcal.c:267)
+==18270==    by 0x4015C8: universe_load (setcal.c:222)
+==18270==    by 0x402B77: run (setcal.c:770)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== 
+==18270== 8 errors in context 10 of 14:
+==18270== Invalid read of size 1
+==18270==    at 0x4846604: strlen (vg_replace_strmem.c:494)
+==18270==    by 0x4022C5: rel_add_pair (setcal.c:542)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a35f13 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x4017D3: universe_add_item (setcal.c:267)
+==18270==    by 0x4015C8: universe_load (setcal.c:222)
+==18270==    by 0x402B77: run (setcal.c:770)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== 
+==18270== 8 errors in context 11 of 14:
+==18270== Invalid read of size 1
+==18270==    at 0x48474D0: strcmp (vg_replace_strmem.c:924)
+==18270==    by 0x401D4C: find_string (setcal.c:402)
+==18270==    by 0x4021ED: rel_add_pair (setcal.c:522)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a37163 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x402186: rel_add_pair (setcal.c:515)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== 
+==18270== 8 errors in context 12 of 14:
+==18270== Invalid read of size 1
+==18270==    at 0x48474C8: strcmp (vg_replace_strmem.c:924)
+==18270==    by 0x401D4C: find_string (setcal.c:402)
+==18270==    by 0x4021ED: rel_add_pair (setcal.c:522)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a362f3 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x4017D3: universe_add_item (setcal.c:267)
+==18270==    by 0x4015C8: universe_load (setcal.c:222)
+==18270==    by 0x402B77: run (setcal.c:770)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== 
+==18270== 8 errors in context 13 of 14:
+==18270== Invalid read of size 1
+==18270==    at 0x48474D0: strcmp (vg_replace_strmem.c:924)
+==18270==    by 0x401D4C: find_string (setcal.c:402)
+==18270==    by 0x4021CB: rel_add_pair (setcal.c:519)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a37113 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x402143: rel_add_pair (setcal.c:511)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== 
+==18270== 8 errors in context 14 of 14:
+==18270== Invalid read of size 1
+==18270==    at 0x48474C8: strcmp (vg_replace_strmem.c:924)
+==18270==    by 0x401D4C: find_string (setcal.c:402)
+==18270==    by 0x4021CB: rel_add_pair (setcal.c:519)
+==18270==    by 0x4020B7: rel_load (setcal.c:491)
+==18270==    by 0x402442: line_load (setcal.c:571)
+==18270==    by 0x402CC1: run (setcal.c:804)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270==  Address 0x4a35f13 is 0 bytes after a block of size 3 alloc'd
+==18270==    at 0x484086F: malloc (vg_replace_malloc.c:381)
+==18270==    by 0x4017D3: universe_add_item (setcal.c:267)
+==18270==    by 0x4015C8: universe_load (setcal.c:222)
+==18270==    by 0x402B77: run (setcal.c:770)
+==18270==    by 0x401295: main (setcal.c:148)
+==18270== 
+==18270== ERROR SUMMARY: 93 errors from 14 contexts (suppressed: 0 from 0)
