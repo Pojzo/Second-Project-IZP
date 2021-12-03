@@ -209,7 +209,7 @@ int universe_load (universe_t *U, char *line) {
 
     split_string(&words, line, &num_words);
     if (num_words == -1) {
-        fprintf(stderr,"[ERROR] invalid definition of universum\n");
+        fprintf(stderr,"[ERROR] Invalid definition of Universum\n");
         return 0;
     }
     const char *identifier = words[0];
@@ -218,20 +218,29 @@ int universe_load (universe_t *U, char *line) {
         return 0;
     }
     // load every word to universe
-    char *cur_word;
     for (int i = 1; i < num_words; i++) {
-        // remove trailing newline, if there is one
-        cur_word = words[i];
-        if (!universe_add_item(U, cur_word)) {
+        if (!universe_add_item(U, words[i])) {
             return 0;
         }
     }
     return 1;
 }
 
+// convert universe to set, return pointer to set
+set_t *universe_to_set(universe_t *U) {
+    set_t *set = set_ctor();
+    set->num_items = U->num_items;
+    set->items = (char **) malloc(sizeof(char *) * set->num_items);
+    for(size_t i = 0; i < set->num_items; i++) {
+        set->items[i] = (char *) malloc(strlen(U->items[i]));
+        strcpy(set->items[i], U->items[i]);
+    }
+    return set;
+}
+
 
 // function returns true if adding element to universe was succesfull
-int universe_add_item (universe_t *U, char *token) {
+int universe_add_item(universe_t *U, char *token) {
     int token_len = strlen(token);
     // najprv overime, ci je dlzka nanajvys 30
     if (token_len > UNIVERSE_MAX_CHARS) {
@@ -244,27 +253,38 @@ int universe_add_item (universe_t *U, char *token) {
         return 0;
     }
 
+
     // allocate memory for new pointer to string
-    char **temp = (char **) realloc(U->items, ++U->num_items * sizeof(char *));
+    /*
+    char ***temp = (char **) realloc(&U->items, (++U->num_items) * sizeof(char *));
     if (temp == NULL) { // if realloc failed
         return 0;
     } 
     // if realloc worked
     U->items = temp;
+    */
 
     // allocate memory for new item/string
-    U->items[U->num_items - 1] = (char *) malloc(sizeof(token_len));
+    //printf("%s pridrbany \n", token);
+    printf("toto je token: %s a toto je jeho len %d\n", token, token_len);
+    const char *test = "Hello";
+    //U->items[U->num_items - 1] = (char *) malloc(strlen(token));
+    //strcpy(U->items[U->num_items - 1], token);
+    U->items[U->num_items - 1] = (char *) malloc(strlen(test));
+    strcpy(U->items[U->num_items - 1], test);
+    /*
+    strcpy(U->items[U->num_items - 1], token);
+    */
+
     if (U->items[U->num_items - 1] == NULL) {
         return 0;
     }
-
-    U->items[U->num_items - 1] = token;
 
     return 1;
 }
 
 // returns true if all condiotions for item in universe are met
-bool universe_valid_item (const char *string) {
+bool universe_valid_item(const char *string) {
     if (!contains_eng_alphabet_chars(string)) {
         fprintf(stderr, "[ERROR] Universe must only contain lowercase and uppercase characters.\n");
         return false;
@@ -339,7 +359,6 @@ bool is_set_command (const char *string) {
 
 // returns true if given string matches with a relation command
 bool is_rel_command (const char *string) {
-
     int string_len = strlen(string);
     char *lower = (char *) malloc(string_len);
 
@@ -420,9 +439,9 @@ int set_add_item (universe_t *U, set_t *S, const char* item) {
 }
 
 void set_print(set_t *S) {
-    printf("S: ");
+    printf("S");
     for (size_t i = 0; i < S->num_items; i++) {
-        printf("%s ", S->items[i]);
+        printf(" %s", S->items[i]);
     }
     printf("\n");
 }
@@ -510,7 +529,8 @@ int rel_add_pair(universe_t *U, rel_t *rel, const char *first, const char *secon
 
     // if either of the words is not contained in universe, return 0;
     if(new_item_first == NULL || new_item_second == NULL) { 
-        printf("%s %s\n", modified_first, modified_second);
+        universe_print(U);
+        printf("%s prvy %s\n", modified_first, modified_second);
         fprintf (stderr, "[ERROR] Relation must only contain items from universe\n");
         return 0;
     }
@@ -591,7 +611,6 @@ int process_command(universe_t *U, line_t lines[MAX_LINES], int num_lines, const
     int num_words;
 
     if (buffer[1] && buffer[1] != ' ') {
-        printf("%d\n", __LINE__);
         fprintf(stderr, "[ERROR] Invalid definition of command.\n");
         return 0;
     }
@@ -616,7 +635,6 @@ int process_command(universe_t *U, line_t lines[MAX_LINES], int num_lines, const
         }
     }
     else {
-        printf("%d\n", __LINE__);
         fprintf(stderr, "[ERROR] Invalid definition of command\n");
         return 0;
     }
@@ -630,19 +648,21 @@ int process_set_command(universe_t *U, line_t lines[MAX_LINES], int num_words, c
         // current command 
         const char* command = words[1];
         int line = atoi(words[2]);
+        set_t *set = NULL;
         if (line == 1) {
-            printf("false\n");
-            return 1;
+            set = universe_to_set(U);
         }
-        line -= 2;
-        // if num lines is negative or greater than number of lines stored
-        //
-        // if its first line - universum, its never empty
-        if (line < 0 || line > num_lines - 1) {
-            return 0;
+        else {
+            line -= 2;
+            // if num lines is negative or greater than number of lines stored
+            //
+            // if its first line - universum, its never empty
+            if (line < 0 || line > num_lines - 1) {
+                return 0;
+            }
+            line_t cur_line = lines[line];
+            set = cur_line.set;
         }
-        line_t cur_line = lines[line];
-        set_t *set = cur_line.set;
         // if no set was defined on the line, return 0
         if (set == NULL) {
             printf("%d\n", line);
@@ -663,7 +683,7 @@ int process_set_command(universe_t *U, line_t lines[MAX_LINES], int num_words, c
     else if (num_words == 4) {
         const char* command = words[1];
         if (strcmp(command, "union") == 0) {
-            // union_function(); // TODO
+            // union_function();
         }
         if (strcmp(command, "intersect") == 0) {
             // intersect(); // TODO
@@ -704,10 +724,10 @@ int process_rel_command(universe_t *U, line_t lines[MAX_LINES], int num_words, c
             return 0; 
         }
         if (strcmp(command, "reflexive") == 0) {
-            // return reflexive();
+            reflexive(rel);
         }
         else if (strcmp(command, "symmetric") == 0) {
-            // return symmetric();
+            symmetric(rel);
         }
         else if (strcmp(command, "antisymmetric") == 0) {
             // return antisymmetric();
@@ -742,7 +762,6 @@ int process_rel_command(universe_t *U, line_t lines[MAX_LINES], int num_words, c
 }
 
 
-
 // main program, returns 1 when an error occurs
 int run(FILE *fp) {
 
@@ -750,6 +769,7 @@ int run(FILE *fp) {
     int line_count = 0;
     char buffer[BUFFER_LEN];
     universe_t U;
+    U.items = malloc(100 * sizeof(char *));
     bool command_only = false;
     while (fgets(buffer, BUFFER_LEN, fp)) { // ked sme na zaciatku, tak nacitame universe, riadok = 0
         // allocate space for another line
@@ -822,6 +842,7 @@ void card(set_t *set) {
 }
 
 int complement(universe_t *U, set_t *set){
+    set_t *new_set = set_ctor();
     bool found;
     for (size_t i = 0; i < U->num_items; i++) {
         found = false;
@@ -832,10 +853,10 @@ int complement(universe_t *U, set_t *set){
             }
         }
         if (!found) {
-            printf("%s ", U->items[i]);
+            set_add_item(U, new_set, U->items[i]);
         }
     }
-    printf("\n");
+    set_print(new_set);
     return 1;
 }
 
@@ -863,7 +884,7 @@ int union_function(set_t *first, set_t *second) {
             printf("%s ", second->items[i]);
         }
     } 
-        return 1;
+    return 1;
 }
 
 
@@ -887,6 +908,7 @@ void function(rel_t *rel) {
 }
 
 void domain(rel_t *rel) {
+    printf("S ");
     for(size_t i = 0; i < rel->num_items; i++) {
         // if its the last pair, print new line, otherwise print space
         printf("%s%c", rel->pairs[i]->first, i == rel->num_items - 1 ? '\n' : ' ');
@@ -894,10 +916,24 @@ void domain(rel_t *rel) {
 }
 
 void codomain(rel_t *rel){
+    printf("S ");
     for(size_t i = 0; i < rel->num_items; i++) {
         // if its the last pair, print new line, otherwise print space
         printf("%s%c", rel->pairs[i]->second, i == rel->num_items - 1 ? '\n' : ' ');
     }
+}
+
+int reflexive(rel_t *rel) {
+    (void) rel;
+    return 1;
+}
+int symmetric(rel_t *rel){
+    (void) rel;
+    return 1;
+}
+int antisymmetric(rel_t *rel){
+    (void) rel;
+    return 1;
 }
 
 /*
@@ -922,12 +958,6 @@ void codomain(rel_t *rel){
 
 // relations
 int reflexive(rel_t *rel){
-return 1;
-}
-int symmetric(rel_t *rel){
-return 1;
-}
-int antisymmetric(rel_t *rel){
 return 1;
 }
 int transitive(rel_t *rel){

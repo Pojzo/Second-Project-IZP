@@ -1,8 +1,5 @@
-U a b c x y z
-S a b x
-S
-S z y b a
-C empty 2
-C empty 4
-C empty 3
-C empty 1
+U dad mom girl boy man woman
+R (dad boy) (dad girl) (mom boy) (mom girl)
+R (dad man) (boy man) (mom woman) (girl woman)
+C codomain 2
+C function 3
