@@ -1,6 +1,0 @@
-U a b c x y z
-R (a a) (a b) (a c) (a x) (a y) (a z) (b a) (b b) (b c) (b x) (b y) (b z) (c a) (c b) (c c) (c x) (c y) (c z) (x a) (x b) (x c) (x x) (x y) (x z) (y a) (y b) (y c) (y x) (y y) (y z) (z a) (z b) (z c) (z x) (z y) (z z)
-R
-S a b c
-R (a x) (a a) (b x) (x x) (b b)
-R (a x) (a a)
