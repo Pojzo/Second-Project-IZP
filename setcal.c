@@ -70,7 +70,11 @@ char **universe_resize(char ***item, size_t new_len);
 bool universe_valid_item(const char *string);
 void universe_print(universe_t *U);
 void universe_free(universe_t *U);
-void free_all(universe_t *U);
+void lines_free(line_t lines[MAX_LINES], int num_lines);
+void set_free(set_t *set);
+void rel_free(rel_t *rel);
+
+int free_all(int return_value, universe_t *U, line_t lines[MAX_LINES], int num_lines);
 
 // prototypes of functions for sets
 set_t *set_ctor();
@@ -96,6 +100,7 @@ int process_command(universe_t *U, line_t lines[MAX_LINES], int num_lines, const
 int process_set_command(universe_t *U, line_t lines[MAX_LINES], int num_words, char **words, int num_lines);
 int process_rel_command(universe_t *U, line_t lines[MAX_LINES], int num_words, char **words, int num_lines);
 
+void print_lines(line_t lines[MAX_LINES], int num_lines);
 int count_unique_words(char **words, int num_words);
 // prototypes for functions over sets and relations
 // sets
@@ -317,16 +322,63 @@ void universe_print(universe_t *U) {
 
 
 
-void universe_free (universe_t *U) {
+void universe_free(universe_t *U) {
     for (int i = 0; i < U->num_items; i++) {
         free(U->items[i]);
     }
     free(U->items);
 }
 
-void free_all(universe_t *U) {
-    universe_free(U);
+void lines_free(line_t lines[MAX_LINES], int num_lines) {
+    for(int i = 0; i < num_lines; i++) {
+        if (lines[i].rel == NULL && lines[i].set == NULL) {
+            break;
+        }
+        set_free(lines[i].set);
+        rel_free(lines[i].rel);
+    }
 }
+
+// free set from memory
+void set_free(set_t *set) {
+    if (set->num_items == 0) {
+        free(set->items);
+        free(set);
+    }
+    for (int i = 0; i < set->num_items; i++) {
+        free(set->items[i]);
+        set->items[i] = NULL;
+    }
+    free(set->items);
+    free(set);
+    set->items = NULL;
+}
+
+// free relation from memory
+void rel_free(rel_t *rel) {
+    if (rel->num_items == 0) {
+        free(rel->pairs);
+        free(rel);
+    }
+    for (int i = 0; i < rel->num_items; i++) {
+        free(rel->pairs[i]->first);
+        free(rel->pairs[i]->second);
+        rel->pairs[i]->first = NULL;
+        rel->pairs[i]->second = NULL;
+    }
+    free(rel->pairs);
+    rel->pairs = NULL;
+}
+
+// free Universe, all sets and relations
+int free_all(int return_value, universe_t *U, line_t lines[MAX_LINES], int num_lines) {
+    --num_lines;
+    print_lines(lines, num_lines);
+    universe_free(U);
+    lines_free(lines, num_lines);
+    return return_value;
+}
+
 
 // returns true if all characters from the string are from english alphabet 
 bool contains_eng_alphabet_chars (const char *string) {
@@ -359,9 +411,7 @@ bool is_set_command (const char *string) {
             return true;
         }
     }
-
     return false;
-
 }
 
 // returns true if given string matches with a relation command
@@ -378,7 +428,6 @@ bool is_rel_command (const char *string) {
             return true;
         }
     }
-
     return false;
 }
 
@@ -412,6 +461,9 @@ set_t *set_ctor () {
 char *find_string (char **array, int array_len, const char* string) {
     for (int i = 0; i < array_len; i++) {
         // if strings matches array[i]
+        if (array[i] == NULL || string == NULL) {
+            return NULL;
+        }
         if (strcmp(array[i], string) == 0) {
             return array[i];
         }
@@ -521,12 +573,17 @@ int rel_add_pair(universe_t *U, rel_t **rel, const char *first, const char *seco
         return 0;
     }
     // first string without (
-    char *modified_first = (char *) malloc(strlen(first));
-    strcpy(modified_first, first + 1);
+    int len_first = strlen(first);
+    int len_second = strlen(second);
+    char *modified_first = (char *) malloc(len_first);
+    first = first + 1;
+    strcpy(modified_first, first);
+    modified_first[len_first - 1] = '\0';
 
     // second string without )
-    char *modified_second = (char *) malloc(strlen(second));
-    memcpy(modified_second, second, strlen(second) - 1);
+    char *modified_second = (char *) malloc(len_second);
+    memcpy(modified_second, second, len_second);
+    modified_second[len_second - 1] = '\0';
 
     // find first string in universe
     char *new_item_first = find_string(U->items, U->num_items, modified_first);
@@ -587,7 +644,7 @@ int line_load(universe_t *U, line_t *line, char *buffer) {
         }
         else {
             // rel_print(rel);
-            line->set = NULL;
+            line->set = set_ctor();
             line->rel = rel;
 
             return 1;
@@ -603,7 +660,7 @@ int line_load(universe_t *U, line_t *line, char *buffer) {
     }
 
     line->set = set;
-    line->rel = NULL;
+    line->rel = rel_ctor();
     //set_print(line->set);
 
     // if everything went well, return 1
@@ -770,7 +827,6 @@ int process_rel_command(universe_t *U, line_t lines[MAX_LINES], int num_words, c
 
 // main program, returns 1 when an error occurs
 int run(FILE *fp) {
-
     line_t lines[MAX_LINES];
     int line_count = 0;
     char buffer[BUFFER_LEN];
@@ -781,8 +837,7 @@ int run(FILE *fp) {
         if (line_count == 0) {
             if (!universe_load(&U, buffer)) {
                 printf("Tutok som\n");
-                universe_free(&U);
-                return 1;
+                return free_all(1, &U, lines, line_count);
             }
             printf("%s", buffer);
             // universe_print(&U);
@@ -790,7 +845,7 @@ int run(FILE *fp) {
         if ((buffer[0] == 'R' || buffer[0] == 'S')) {
             // relations and sets must be defined before reading commands
             if (command_only) {
-                return 1;
+                return free_all(1, &U, lines, line_count);
             }
 
             // if buffer on index 1 exists and it is not space
@@ -800,7 +855,7 @@ int run(FILE *fp) {
                 line_t new_line;
                 set_t *empty_set = set_ctor();
                 new_line.set = empty_set;
-                rel_t *rel = NULL;
+                rel_t *rel = rel_ctor();
                 new_line.rel = rel;
                 lines[line_count - 1] = new_line;
                 line_count += 1;
@@ -811,7 +866,7 @@ int run(FILE *fp) {
                 line_t new_line;
                 rel_t *empty_rel = rel_ctor();
                 new_line.rel = empty_rel;
-                rel_t *rel = NULL;
+                rel_t *rel = rel_ctor();
                 new_line.rel = rel;
                 lines[line_count - 1] = new_line;
                 line_count += 1;
@@ -821,7 +876,7 @@ int run(FILE *fp) {
 
             if (buffer[1] && buffer[1] != ' ') {
                 fprintf(stderr, "[ERROR] Invalid input.\n");
-                return 1;
+                return free_all(1, &U, lines, line_count);
             }
             line_t new_line;
 
@@ -830,7 +885,7 @@ int run(FILE *fp) {
                 printf("%s", buffer);
             }
             else {
-                return 1;
+                return free_all(1, &U, lines, line_count);
             }
         }
         // if line starts with 'C', we're ready for reading commands
@@ -838,12 +893,12 @@ int run(FILE *fp) {
             // if buffer on index 1 exists and it is not space 
             command_only = true;
             if (!process_command(&U, lines, line_count, buffer)) {
-                return 1;
+                return free_all(1, &U, lines, line_count);
             }
         }
         ++line_count;
     }
-    return 0;
+    return free_all(0, &U, lines, line_count);
 }
 
 
@@ -892,9 +947,9 @@ int complement(universe_t *U, set_t *set){
         }
     }
     set_print(new_set);
+    set_free(new_set);
     return 1;
 }
-
 
 
 int union_function(set_t *first, set_t *second) {
@@ -1066,3 +1121,10 @@ int bijective(rel_t * rel, set_t *first, set_t *second){
 return 1;
 }
 */
+
+
+void print_lines(line_t lines[MAX_LINES], int num_count) {
+    for (int i = 0; i < num_count-1; i++) {
+        printf("set: %d \rrel: %d", lines[i].set->num_items, lines[i].rel->num_items);
+    }
+}
