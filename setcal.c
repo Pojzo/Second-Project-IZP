@@ -33,13 +33,13 @@ const char* len_three_commands[] = {"union", "intersect", "minus", "subseteq", "
 
 typedef struct Universe {
     char **items;
-    size_t num_items;
+    int num_items;
 } universe_t;
 
 
 typedef struct Set {
     char **items;
-    size_t num_items;
+    int num_items;
 } set_t; 
 
 typedef struct Pair {
@@ -49,7 +49,7 @@ typedef struct Pair {
 
 typedef struct Relation {
     pair_t **pairs;
-    size_t num_items;
+    int num_items;
 } rel_t; 
 
 
@@ -66,6 +66,7 @@ void split_string(char ***words, const char *string, int *num_words);
 // prototypes of functions for universe
 int universe_load(universe_t *U, char *line);
 int universe_add_item(universe_t *U, char *word);
+char **universe_resize(char ***item, size_t new_len);
 bool universe_valid_item(const char *string);
 void universe_print(universe_t *U);
 void universe_free(universe_t *U);
@@ -73,7 +74,7 @@ void free_all(universe_t *U);
 
 // prototypes of functions for sets
 set_t *set_ctor();
-char* find_string(char **array, size_t array_len, const char* string);
+char* find_string(char **array, int array_len, const char* string);
 int set_add_item(universe_t *U, set_t* S, const char* item);
 void set_print(set_t *set);
 int set_load(universe_t *U, set_t *S, const char *buffer);
@@ -81,7 +82,7 @@ int set_load(universe_t *U, set_t *S, const char *buffer);
 // prototypes of functions for relations
 rel_t *rel_ctor();
 int rel_load(universe_t *U, rel_t *rel, char *buffer);
-int rel_add_pair(universe_t *U, rel_t *rel, const char *first, const char *second);
+int rel_add_pair(universe_t *U, rel_t **rel, const char *first, const char *second);
 void rel_print(rel_t *rel);
 
 bool contains_eng_alphabet_chars(const char *string);
@@ -95,6 +96,7 @@ int process_command(universe_t *U, line_t lines[MAX_LINES], int num_lines, const
 int process_set_command(universe_t *U, line_t lines[MAX_LINES], int num_words, char **words, int num_lines);
 int process_rel_command(universe_t *U, line_t lines[MAX_LINES], int num_words, char **words, int num_lines);
 
+int count_unique_words(char **words, int num_words);
 // prototypes for functions over sets and relations
 // sets
 void empty(set_t *set);
@@ -231,8 +233,8 @@ set_t *universe_to_set(universe_t *U) {
     set_t *set = set_ctor();
     set->num_items = U->num_items;
     set->items = (char **) malloc(sizeof(char *) * set->num_items);
-    for(size_t i = 0; i < set->num_items; i++) {
-        set->items[i] = (char *) malloc(strlen(U->items[i]));
+    for(int i = 0; i < set->num_items; i++) {
+        set->items[i] = (char *) malloc(strlen(U->items[i]) + 1);
         strcpy(set->items[i], U->items[i]);
     }
     return set;
@@ -241,6 +243,7 @@ set_t *universe_to_set(universe_t *U) {
 
 // function returns true if adding element to universe was succesfull
 int universe_add_item(universe_t *U, char *token) {
+    
     int token_len = strlen(token);
     // najprv overime, ci je dlzka nanajvys 30
     if (token_len > UNIVERSE_MAX_CHARS) {
@@ -256,28 +259,35 @@ int universe_add_item(universe_t *U, char *token) {
 
     // allocate memory for new pointer to string
     
-    char **temp = (char **) realloc(U->items, (++U->num_items) * sizeof(char *));
-    if (temp == NULL) { // if realloc failed
-        return 0;
-    } 
+    // char **temp = (char **) realloc(U->items, (++U->num_items) * sizeof(char *));
+    // if (temp == NULL) { // if realloc failed
+    //     return 0;
+    //} 
     // if realloc worked
-    U->items = temp;
+    //U->items = temp;
 
     // allocate memory for new item/string
     // const char *test = "Hello";
-    U->items[U->num_items - 1] = (char *) malloc(strlen(token));
-    strcpy(U->items[U->num_items - 1], token);
+    U->items = (char **) realloc(U->items, sizeof(char *) * (U->num_items + 1));
+    U->items[U->num_items] = (char *) malloc(strlen(token) + 1);
+    strcpy(U->items[U->num_items], token);
+    U->num_items++;
     // U->items[U->num_items - 1] = (char *) malloc(strlen(test));
     // strcpy(U->items[U->num_items - 1], test);
     /*
     strcpy(U->items[U->num_items - 1], token);
     */
 
-    if (U->items[U->num_items - 1] == NULL) {
+    if ((U)->items[(U)->num_items - 1] == NULL) {
         return 0;
     }
 
     return 1;
+}
+
+char **universe_resize(char ***items, size_t new_len) {
+    char **resized = realloc(*items, new_len * sizeof(char *));
+    return resized;
 }
 
 // returns true if all condiotions for item in universe are met
@@ -299,7 +309,7 @@ bool universe_valid_item(const char *string) {
 
 void universe_print(universe_t *U) {
     printf("U: ");
-    for (size_t i = 0; i < U->num_items; i++) {
+    for (int i = 0; i < U->num_items; i++) {
         printf("%s ", U->items[i]);
     }
     printf("\n");
@@ -308,7 +318,7 @@ void universe_print(universe_t *U) {
 
 
 void universe_free (universe_t *U) {
-    for (size_t i = 0; i < U->num_items; i++) {
+    for (int i = 0; i < U->num_items; i++) {
         free(U->items[i]);
     }
     free(U->items);
@@ -399,8 +409,8 @@ set_t *set_ctor () {
 }
 
 // returns true if array contains given string
-char *find_string (char **array, size_t array_len, const char* string) {
-    for (size_t i = 0; i < array_len; i++) {
+char *find_string (char **array, int array_len, const char* string) {
+    for (int i = 0; i < array_len; i++) {
         // if strings matches array[i]
         if (strcmp(array[i], string) == 0) {
             return array[i];
@@ -437,7 +447,7 @@ int set_add_item (universe_t *U, set_t *S, const char* item) {
 
 void set_print(set_t *S) {
     printf("S");
-    for (size_t i = 0; i < S->num_items; i++) {
+    for (int i = 0; i < S->num_items; i++) {
         printf(" %s", S->items[i]);
     }
     printf("\n");
@@ -491,7 +501,7 @@ int rel_load (universe_t *U, rel_t *rel, char *buffer) {
     // (dad mom) (boy girl)
     // take '(dad' and 'mom')
     for (int i = 1; i < num_words; i += 2) {
-        if(!rel_add_pair(U, rel, words[i], words[i + 1])) {
+        if(!rel_add_pair(U, &rel, words[i], words[i + 1])) {
             return 0;
         }
     }
@@ -500,7 +510,7 @@ int rel_load (universe_t *U, rel_t *rel, char *buffer) {
 }
 
 // add pair to relation
-int rel_add_pair(universe_t *U, rel_t *rel, const char *first, const char *second) {
+int rel_add_pair(universe_t *U, rel_t **rel, const char *first, const char *second) {
     // left element must begin with (
     if (first[0] != '(') {
         return 0;
@@ -511,11 +521,11 @@ int rel_add_pair(universe_t *U, rel_t *rel, const char *first, const char *secon
         return 0;
     }
     // first string without (
-    char *modified_first = (char *) malloc(strlen(first) - 1);
-    memcpy(modified_first, first + 1, strlen(first) - 1);
+    char *modified_first = (char *) malloc(strlen(first));
+    strcpy(modified_first, first + 1);
 
     // second string without )
-    char *modified_second = (char *) malloc(strlen(second) - 1);
+    char *modified_second = (char *) malloc(strlen(second));
     memcpy(modified_second, second, strlen(second) - 1);
 
     // find first string in universe
@@ -526,39 +536,38 @@ int rel_add_pair(universe_t *U, rel_t *rel, const char *first, const char *secon
 
     // if either of the words is not contained in universe, return 0;
     if(new_item_first == NULL || new_item_second == NULL) { 
-        universe_print(U);
-        printf("%s prvy %s\n", modified_first, modified_second);
+        printf("%s %s\n", new_item_first, new_item_second);
         fprintf (stderr, "[ERROR] Relation must only contain items from universe\n");
         return 0;
     }
     // increase number of items by one
-    rel->num_items++;
+    (*rel)->num_items++;
     // allocate memory for pointer to new pair
-    rel->pairs = (pair_t **) realloc(rel->pairs, rel->num_items * sizeof(pair_t*));
+    (*rel)->pairs = (pair_t **) realloc((*rel)->pairs, (*rel)->num_items * sizeof(pair_t*));
 
     // index to add new pair to 
-    int cur_index = rel->num_items - 1;
+    int cur_index = (*rel)->num_items - 1;
     // allocate memory for new pair
-    rel->pairs[cur_index] = (pair_t *) malloc(sizeof(pair_t));
+    (*rel)->pairs[cur_index] = (pair_t *) malloc(sizeof(pair_t));
 
     // allocate memory for pointer to first word of the pair
-    rel->pairs[cur_index]->first = (char *) malloc(strlen(new_item_first));
+    (*rel)->pairs[cur_index]->first = (char *) malloc(strlen(new_item_first) + 1);
 
     // allocate memoryf for pointer to second word of the pair
-    rel->pairs[cur_index]->second = (char *) malloc(strlen(new_item_second));
+    (*rel)->pairs[cur_index]->second = (char *) malloc(strlen(new_item_second) + 1);
 
     // copy first word to pair 
-    strcpy(rel->pairs[cur_index]->first, new_item_first);
+    strcpy((*rel)->pairs[cur_index]->first, new_item_first);
 
     // copy second word to pair
-    strcpy(rel->pairs[cur_index]->second, new_item_second);
+    strcpy((*rel)->pairs[cur_index]->second, new_item_second);
 
     return 1;
 }
 
 void rel_print(rel_t *rel) {
     printf("R: ");
-    for (size_t i = 0; i < rel->num_items; i++) {
+    for (int i = 0; i < rel->num_items; i++) {
         printf("(%s, %s) ", rel->pairs[i]->first, rel->pairs[i]->second);
     }
     printf("\n");
@@ -771,6 +780,7 @@ int run(FILE *fp) {
         // allocate space for another line
         if (line_count == 0) {
             if (!universe_load(&U, buffer)) {
+                printf("Tutok som\n");
                 universe_free(&U);
                 return 1;
             }
@@ -790,6 +800,17 @@ int run(FILE *fp) {
                 line_t new_line;
                 set_t *empty_set = set_ctor();
                 new_line.set = empty_set;
+                rel_t *rel = NULL;
+                new_line.rel = rel;
+                lines[line_count - 1] = new_line;
+                line_count += 1;
+                printf("%s", buffer);
+                continue;
+            }
+            if (buffer[0] == 'R' && strlen(buffer) == 2) {
+                line_t new_line;
+                rel_t *empty_rel = rel_ctor();
+                new_line.rel = empty_rel;
                 rel_t *rel = NULL;
                 new_line.rel = rel;
                 lines[line_count - 1] = new_line;
@@ -825,6 +846,24 @@ int run(FILE *fp) {
     return 0;
 }
 
+
+int count_unique_words(char **words, int num_words) {
+    int count = 0;
+    bool found;
+    for (int i = 0; i < num_words; i++) {
+        found = false;
+        for (int j = i + 1; j < num_words; j++) {
+            if (strcmp(words[i], words[j]) == 0) {
+                found = true;
+            }
+        }
+        if (!found) {
+            count += 1;
+        }
+    }
+    return count;
+}
+
 void empty(set_t *set){
     if(set->num_items == 0) {
         printf("true\n");
@@ -834,15 +873,15 @@ void empty(set_t *set){
 }
 
 void card(set_t *set) {
-    printf("%lu\n", set->num_items);
+    printf("%d\n", set->num_items);
 }
 
 int complement(universe_t *U, set_t *set){
     set_t *new_set = set_ctor();
     bool found;
-    for (size_t i = 0; i < U->num_items; i++) {
+    for (int i = 0; i < U->num_items; i++) {
         found = false;
-        for (size_t j = 0; j < set->num_items; j++) {
+        for (int j = 0; j < set->num_items; j++) {
             if (strcmp(U->items[i], set->items[j]) == 0) {
                 found = true;
                 break;
@@ -863,14 +902,14 @@ int union_function(set_t *first, set_t *second) {
     (void) second;
 
     bool found;
-    for (size_t i = 0; i < first->num_items; i++)
+    for (int i = 0; i < first->num_items; i++)
     {
         printf("%s ", first->items[i]);
     }
 
-    for (size_t i = 0; i < second->num_items; i++) {
+    for (int i = 0; i < second->num_items; i++) {
         found = false;
-        for (size_t j = 0; j < first->num_items; j++) {
+        for (int j = 0; j < first->num_items; j++) {
             if (strcmp(first->items[i], second->items[j]) == 0) {
                 found = true;
                 break;
@@ -887,8 +926,8 @@ int union_function(set_t *first, set_t *second) {
 // ---------------------------------------- // 
 
 void function(rel_t *rel) {
-    for(size_t i = 0; i < rel->num_items; i++) {
-        for(size_t j = 0; j < rel->num_items; j++) {
+    for(int i = 0; i < rel->num_items; i++) {
+        for(int j = 0; j < rel->num_items; j++) {
             if (i == j) {
                 continue;
             }
@@ -905,7 +944,7 @@ void function(rel_t *rel) {
 
 void domain(rel_t *rel) {
     printf("S ");
-    for(size_t i = 0; i < rel->num_items; i++) {
+    for(int i = 0; i < rel->num_items; i++) {
         // if its the last pair, print new line, otherwise print space
         printf("%s%c", rel->pairs[i]->first, i == rel->num_items - 1 ? '\n' : ' ');
     }
@@ -913,18 +952,70 @@ void domain(rel_t *rel) {
 
 void codomain(rel_t *rel){
     printf("S ");
-    for(size_t i = 0; i < rel->num_items; i++) {
+    for(int i = 0; i < rel->num_items; i++) {
         // if its the last pair, print new line, otherwise print space
         printf("%s%c", rel->pairs[i]->second, i == rel->num_items - 1 ? '\n' : ' ');
     }
 }
 
 int reflexive(rel_t *rel) {
-    (void) rel;
-    return 1;
+    char **temp = (char **) malloc(rel->num_items * 2 * sizeof(char *));
+    int cur_index = 0;
+    // add all elements from relation to new array so we can count number of unique characters
+    for (int i = 0; i < rel->num_items; i++) {
+        temp[cur_index] = (char *) malloc(strlen(rel->pairs[i]->first) + 1);
+        temp[cur_index + 1] = (char *) malloc(strlen(rel->pairs[i]->second) + 1);
+
+        strcpy(temp[cur_index], rel->pairs[i]->first);
+        strcpy(temp[cur_index + 1], rel->pairs[i]->second);
+        cur_index += 2;
+    }
+
+    int num_unique_words = count_unique_words(temp, rel->num_items * 2);
+    // printf("Pocet unikatnych charakterov tam %d\n", num_unique_words);
+    int count_reflexive_pairs = 0;
+    // count how many elements are reflexive
+    for(int i = 0; i < rel->num_items; i++) {
+        if (strcmp(rel->pairs[i]->first, rel->pairs[i]->second) == 0) {
+            count_reflexive_pairs += 1;
+        }
+    }
+    // only if number of reflexive pairs equals unique words, is it a reflexive relation
+    if (count_reflexive_pairs == num_unique_words) {
+        printf("true\n");
+        return 1;
+    }
+    printf("false\n");
+    return 0;
+
+    // free temporary array
+    for (int i = 0; i < rel->num_items * 2; i++) {
+        free(temp[i]);
+    }
+    free(temp);
 }
-int symmetric(rel_t *rel){
-    (void) rel;
+
+int symmetric(rel_t *rel) {
+    bool found;
+    for(int i = 0; i < rel->num_items; i++){
+        found = false;
+        if(strcmp(rel->pairs[i]->first, rel->pairs[i]->second) == 0) {
+            continue;
+        }
+        else {
+            for(int j = 0; j< rel->num_items; j++){
+                if(strcmp(rel->pairs[i]->first, rel->pairs[j]->second) == 0 && strcmp(rel->pairs[i]->second, rel->pairs[j]->first) == 0) {
+                    found = true;
+                }
+            }
+        }
+        if(!found){
+            printf("false\n");
+            return 0;       
+        }
+    }
+
+    printf("true\n");
     return 1;
 }
 int antisymmetric(rel_t *rel){
