@@ -758,6 +758,7 @@ int run(FILE *fp) {
                 universe_free(&U);
                 return 1;
             }
+            printf("%s", buffer);
             // universe_print(&U);
         }
         if ((buffer[0] == 'R' || buffer[0] == 'S')) {
@@ -777,6 +778,7 @@ int run(FILE *fp) {
                 new_line.rel = rel;
                 lines[line_count - 1] = new_line;
                 line_count += 1;
+                printf("%s", buffer);
                 continue;
             }
 
@@ -788,6 +790,7 @@ int run(FILE *fp) {
 
             if (line_load(&U, &new_line, buffer)) {
                 lines[line_count - 1] = new_line;
+                printf("%s", buffer);
             }
             else {
                 return 1;
