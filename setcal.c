@@ -255,23 +255,20 @@ int universe_add_item(universe_t *U, char *token) {
 
 
     // allocate memory for new pointer to string
-    /*
-    char ***temp = (char **) realloc(&U->items, (++U->num_items) * sizeof(char *));
+    
+    char **temp = (char **) realloc(U->items, (++U->num_items) * sizeof(char *));
     if (temp == NULL) { // if realloc failed
         return 0;
     } 
     // if realloc worked
     U->items = temp;
-    */
 
     // allocate memory for new item/string
-    //printf("%s pridrbany \n", token);
-    printf("toto je token: %s a toto je jeho len %d\n", token, token_len);
-    const char *test = "Hello";
-    //U->items[U->num_items - 1] = (char *) malloc(strlen(token));
-    //strcpy(U->items[U->num_items - 1], token);
-    U->items[U->num_items - 1] = (char *) malloc(strlen(test));
-    strcpy(U->items[U->num_items - 1], test);
+    // const char *test = "Hello";
+    U->items[U->num_items - 1] = (char *) malloc(strlen(token));
+    strcpy(U->items[U->num_items - 1], token);
+    // U->items[U->num_items - 1] = (char *) malloc(strlen(test));
+    // strcpy(U->items[U->num_items - 1], test);
     /*
     strcpy(U->items[U->num_items - 1], token);
     */
@@ -769,7 +766,6 @@ int run(FILE *fp) {
     int line_count = 0;
     char buffer[BUFFER_LEN];
     universe_t U;
-    U.items = malloc(100 * sizeof(char *));
     bool command_only = false;
     while (fgets(buffer, BUFFER_LEN, fp)) { // ked sme na zaciatku, tak nacitame universe, riadok = 0
         // allocate space for another line
