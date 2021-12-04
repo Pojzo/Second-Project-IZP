@@ -1,7 +1,0 @@
-valgrind -s --track-origins=yes --leak-check=full --show-leak-kinds=all ./setcal sets
-dostal som sa sem
-Pridavam dad
-Pridavam boy
-Pridavam woman
-Pridavam man
-S dad boy woman man
