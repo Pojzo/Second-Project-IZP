@@ -21,3 +21,9 @@ test: test.c
 
 valgtest:
 	valgrind -s --track-origins=yes --leak-check=full --show-leak-kinds=all ./test
+
+kuchartest:
+	py test.py setcal
+
+debiltest:
+	py setcal.py
