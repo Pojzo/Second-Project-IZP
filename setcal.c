@@ -4,6 +4,9 @@
 #include <string.h>
 #include <ctype.h>
 
+
+// nedokoncili sme to lebo nevieme programovat
+
 const int UNIVERSE_MAX_CHARS = 30; // maximum length of an item in Universe
 const int NUM_ARGUMENTS = 2; // maximum number of arguments on command line
 const int NUM_SET_COMMANDS = 9; // number of commands for Set
