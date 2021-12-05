@@ -659,6 +659,9 @@ int set_add_item(set_t *U, set_t *set, char *item, bool loading_universe) {
 
 int process_command(set_t *U, line_t lines[MAX_LINES], int num_lines, const char *buffer) {
 
+    if (strlen(buffer) == 1) {
+        return 0;
+    }
     char **words = NULL;
     int num_words;
 
@@ -700,6 +703,7 @@ int process_command(set_t *U, line_t lines[MAX_LINES], int num_lines, const char
 }
 
 int process_set_command(set_t *U, line_t lines[MAX_LINES], int num_words, char **words, int num_lines) {
+    
     // if number of words is 3, there are only three possible funcdtions
     if (num_words == 3) {
         // current command 
@@ -733,7 +737,7 @@ int process_set_command(set_t *U, line_t lines[MAX_LINES], int num_words, char *
             card(set);
         }
         else if (strcmp(command, "complement") == 0) {       
-        //    complement(U, set); // TODO
+            complement(U, set); // TODO
         }
     }
     // if number of words is 4, there are 6 possible functions
@@ -838,6 +842,7 @@ int process_rel_command(set_t *U, line_t lines[MAX_LINES], int num_words, char *
     return 1;
 }
 
+// co je toto za funkciu xdd
 void penis(line_t lines[MAX_LINES])
 {
     for (int i = 0 ; i < MAX_LINES; i++)
@@ -937,11 +942,10 @@ void card(set_t *set) {
     printf("%d\n", set->num_items);
 }
 
-/*
 int complement(set_t *U, set_t *set){
     set_t *new_set = set_ctor();
     bool found;
-    for (int i = 0; i < U->num_items; i++) {
+    for (int i = 0; i < set->num_items; i++) {
         found = false;
         for (int j = 0; j < set->num_items; j++) {
             if (strcmp(U->items[i], set->items[j]) == 0) {
@@ -950,7 +954,7 @@ int complement(set_t *U, set_t *set){
             }
         }
         if (!found) {
-            set_add_item(set, new_set, item, U->items[i]);
+            set_add_item(U, new_set, set->items[i], false);
         }
     }
     set_print(new_set);
@@ -958,7 +962,6 @@ int complement(set_t *U, set_t *set){
     return 1;
 }
 
-*/
 
 int union_function(set_t *first, set_t *second) {
     (void) first;
@@ -1132,6 +1135,7 @@ int intersect(set_t *first, set_t *second){
             }
         }
     }
+    printf("\n");
     return 0;
 }
 
