@@ -114,8 +114,8 @@ int complement(set_t *U, set_t *set);
 int union_function(set_t *first, set_t *second);
 int intersect(set_t * first, set_t *second);
 int minus(set_t * first, set_t *second);
-int subseteq(set_t * first, set_t *second);
-int subset(set_t * first, set_t *second);
+void subseteq(set_t * first, set_t *second);
+void subset(set_t * first, set_t *second);
 int equals(set_t * first, set_t *second);
 
 // relations
@@ -739,23 +739,43 @@ int process_set_command(set_t *U, line_t lines[MAX_LINES], int num_words, char *
     // if number of words is 4, there are 6 possible functions
     else if (num_words == 4) {
         const char* command = words[1];
+        int first_line = atoi(words[2]);
+        int second_line = atoi(words[3]);
+        set_t *first = NULL;
+        set_t *second = NULL;
+        first_line -= 1;
+        second_line -= 1;
+        if (first_line < 0 || first_line > num_lines -1) {
+            return 0;
+        }
+        
+        if (second_line < 0 || second_line > num_lines -1) {
+            return 0;
+        }
+
+        first = lines[first_line].set;
+        second = lines[second_line].set;
+        if (first == NULL || second == NULL) {
+            return 0;
+        }
+
         if (strcmp(command, "union") == 0) {
-            // union_function();
+             union_function(first, second);
         }
         if (strcmp(command, "intersect") == 0) {
-            // intersect(); // TODO
+            intersect(first, second);
         }
         if (strcmp(command, "minus") == 0) {
-            // minus(); // TODO
+             minus(first, second);
         }
         if (strcmp(command, "subseteq") == 0) {
-            // subseteq(); // TODO
+            subseteq(first, second);
         }
         if (strcmp(command, "subset") == 0) {
-            // subset(); // TODO
+            subset(first, second);
         }
         if (strcmp(command, "equals") == 0) {
-            // equals(); // TODO
+             equals(first, second);
         }
     }
     return 1;
@@ -1083,6 +1103,104 @@ int antisymmetric(rel_t *rel){
 
     printf("true\n");
     return 1;
+}
+//minus
+int minus(set_t *first, set_t *second){
+    bool found = false;
+    for(int i = 0; i < first->num_items; i++){
+        found = false;
+        for(int j = 0; j < second->num_items; j++){
+            if(strcmp(first->items[i], second->items[j]) == 0){
+                found = true;
+            }
+        }
+        if(!found){
+            printf("%s ", first->items[i]);
+        }
+    }
+    return 0;
+}
+
+
+//intersect
+int intersect(set_t *first, set_t *second){
+    for(int i = 0; i < first->num_items; i++){
+        for(int j = 0; j < second->num_items; j++){
+            if(strcmp(first->items[i], second->items[j]) == 0){
+                printf("%s ", first->items[i]);
+                break;
+            }
+        }
+    }
+    return 0;
+}
+
+
+//equals
+int equals(set_t *first, set_t *second){
+    if (first->num_items != second->num_items){
+        printf("false\n");
+        return 0;
+    }
+    int num_of_eqs = 0;
+    for(int i = 0; i < first->num_items; i++){
+        for(int j = 0; j < second->num_items; j++){
+            if (strcmp(first->items[i], second->items[j]) == 0){
+                num_of_eqs++;
+                break;
+            }
+        }
+    }
+    if (num_of_eqs == first->num_items){
+        printf("true\n");
+        return 1;
+    }
+    printf("false\n");
+    return 0;
+}
+
+//subset
+void subset(set_t *first, set_t *second){
+    if(equals(first, second)){
+        printf("false");
+        return;
+    }
+    else{
+    bool found = false;
+    for(int i = 0; i < first->num_items; i++){
+        found = false;
+        for(int j = 0; j < second->num_items; j++){
+            if(strcmp(first->items[i], second->items[j]) == 0){
+                found = true;
+            }
+        }
+        if(!found){
+            printf("false");
+            return;
+        }
+    }
+    printf("true");
+    return;
+    }
+}
+
+//subseteq
+void subseteq(set_t *first, set_t *second){
+    bool found = false;
+    for(int i = 0; i < first->num_items; i++){
+        found = false;
+        for(int j = 0; j < second->num_items; j++){
+            if(strcmp(first->items[i], second->items[j]) == 0){
+                found = true;
+            }
+        }
+        if(!found){
+            printf("false");
+            return;
+        }
+    }
+    printf("true");
+    return;
 }
 
 /*
