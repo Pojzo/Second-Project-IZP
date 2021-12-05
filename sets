@@ -2,5 +2,7 @@ U mamina ocino veronika
 S mamina ocino
 S mamina ocino
 R (mamina veronika)
+R (mamina veronika) (ocino mamina) (mamina mamina) (veronika mamina)
 R (ocino mamina)
 C empty 2
+C antisymmetric 5

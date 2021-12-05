@@ -787,7 +787,7 @@ int process_rel_command(set_t *U, line_t lines[MAX_LINES], int num_words, char *
             symmetric(rel);
         }
         else if (strcmp(command, "antisymmetric") == 0) {
-            // return antisymmetric();
+            antisymmetric(rel);
         }
         else if (strcmp(command, "transitive") == 0) {
             // return transitive();
@@ -1062,7 +1062,26 @@ int symmetric(rel_t *rel) {
     return 1;
 }
 int antisymmetric(rel_t *rel){
-    (void) rel;
+    bool found;
+    for(int i = 0; i < rel->num_items; i++){
+        found = false;
+        if(strcmp(rel->pairs[i]->first, rel->pairs[i]->second) == 0) {
+            continue;
+        }
+        else {
+            for(int j = 0; j< rel->num_items; j++){
+                if(strcmp(rel->pairs[i]->first, rel->pairs[j]->second) == 0 && strcmp(rel->pairs[i]->second, rel->pairs[j]->first) == 0) {
+                    found = true;
+                }
+            }
+        }
+        if(found){
+            printf("false\n");
+            return 0;       
+        }
+    }
+
+    printf("true\n");
     return 1;
 }
 
